@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>docker-compose 启动peers and orderering service &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="peer channel create 创建通道" href="peerchannelcreate.html"/>
+        <link rel="prev" title="configtxgen创建通道配置" href="configtxgen.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="prereqs.html">Prerequisites 安装环境和测试网络</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crypto.html">cryptogen生成证书</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configtxgen.html">configtxgen创建通道配置</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">docker-compose 启动peers and orderering service</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#docker-compose">docker-compose的用途？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-sh">在network.sh的使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#docker-compose">docker-compose 命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#docker-compose">docker-compose 配置文件配置项的含义是什么？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="peerchannelcreate.html">peer channel create 创建通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincodelife.html">peer lifecycle chaincode 创建链码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincode.html">peer chaincode 运行链码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>docker-compose 启动peers and orderering service</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/dockercompose.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="docker-compose-peers-and-orderering-service">
+<span id="docker-compose-peers-and-orderering-service"></span><h1>docker-compose 启动peers and orderering service<a class="headerlink" href="#docker-compose-peers-and-orderering-service" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="docker-compose">
+<span id="docker-compose"></span><h2>docker-compose的用途？<a class="headerlink" href="#docker-compose" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> 利用下载的 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">images</span></code> 生成容器，容器包含 <code class="docutils literal notranslate"><span class="pre">peer</span></code> <code class="docutils literal notranslate"><span class="pre">orderering</span></code> 服务。</p>
+</div>
+<div class="section" id="network-sh">
+<span id="network-sh"></span><h2>在network.sh的使用场景是什么？<a class="headerlink" href="#network-sh" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">network.sh</span></code> 使用 <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code> 根据 <code class="docutils literal notranslate"><span class="pre">docker/docker-compose-test-net.yaml</span></code> 文件启动<code class="docutils literal notranslate"><span class="pre">peer</span></code> <code class="docutils literal notranslate"><span class="pre">orderering</span></code> 服务:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_TAG</span><span class="o">=</span><span class="n">latest</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">docker</span><span class="o">/</span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">-</span><span class="n">test</span><span class="o">-</span><span class="n">net</span><span class="o">.</span><span class="n">yaml</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span> 
+</pre></div>
+</div>
+</div>
+<div class="section" id="docker-compose">
+<span id="id1"></span><h2>docker-compose 命令的效果是什么？<a class="headerlink" href="#docker-compose" title="Permalink to this headline">¶</a></h2>
+<p>启动了三个docker容器</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ docker ps -a
+CONTAINER ID        IMAGE                                                                                                                                                                   COMMAND                  CREATED             STATUS                     PORTS                              NAMES
+180cd5126a28        hyperledger/fabric-peer:latest                                                                                                                                          <span class="s2">&quot;peer node start&quot;</span>        <span class="m">3</span> days ago          Up <span class="m">5</span> seconds        7051/tcp, 0.0.0.0:9051-&gt;9051/tcp   peer0.org2.example.com
+24dfcb651a16        hyperledger/fabric-peer:latest                                                                                                                                          <span class="s2">&quot;peer node start&quot;</span>        <span class="m">3</span> days ago          Up <span class="m">5</span> seconds        0.0.0.0:7051-&gt;7051/tcp             peer0.org1.example.com
+3b445e2592e0        hyperledger/fabric-orderer:latest                                                                                                                                       <span class="s2">&quot;orderer&quot;</span>                <span class="m">3</span> days ago          Up <span class="m">5</span> seconds        0.0.0.0:7050-&gt;7050/tcp             orderer.example.com
+</pre></div>
+</div>
+</div>
+<div class="section" id="docker-compose">
+<span id="id2"></span><h2>docker-compose 配置文件配置项的含义是什么？<a class="headerlink" href="#docker-compose" title="Permalink to this headline">¶</a></h2>
+<p><strong>需要注意的是<code class="docutils literal notranslate"><span class="pre">service</span></code>下<code class="docutils literal notranslate"><span class="pre">volumes:</span></code>项，将证书目录和创世块文件挂载到了容器当中。</strong></p>
+<p>配置文件为 <code class="docutils literal notranslate"><span class="pre">docker/docker-compose-test-net.yaml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 版本号</span>
+<span class="l l-Scalar l-Scalar-Plain">version</span><span class="p p-Indicator">:</span> <span class="s">&#39;2&#39;</span>
+
+<span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">orderer.example.com</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">peer0.org1.example.com</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">peer0.org2.example.com</span><span class="p p-Indicator">:</span>
+
+<span class="l l-Scalar l-Scalar-Plain">networks</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">test</span><span class="p p-Indicator">:</span>
+
+<span class="l l-Scalar l-Scalar-Plain">services</span><span class="p p-Indicator">:</span>
+
+  <span class="l l-Scalar l-Scalar-Plain">orderer.example.com</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">container_name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">orderer.example.com</span>
+    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">hyperledger/fabric-orderer:$IMAGE_TAG</span>
+    <span class="l l-Scalar l-Scalar-Plain">environment</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FABRIC_LOGGING_SPEC=INFO</span>  <span class="c1"># log level</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_LISTENADDRESS=0.0.0.0</span> <span class="c1"># 监听地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_LISTENPORT=7050</span> <span class="c1"># 监听端口</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_GENESISMETHOD=file</span>  <span class="c1"># 创世块来源</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block</span> <span class="c1"># 创世块文件地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_LOCALMSPID=OrdererMSP</span> <span class="c1"># 所属组id</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp</span> <span class="c1"># msp文件件</span>
+      <span class="c1"># enabled TLS</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_TLS_ENABLED=true</span> <span class="c1"># 使用tls加密</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key</span> <span class="c1">#tls私钥</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt</span> <span class="c1"># tls证书</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]</span> <span class="c1"># tls根证书</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_KAFKA_VERBOSE=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]</span>
+    <span class="l l-Scalar l-Scalar-Plain">working_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/opt/gopath/src/github.com/hyperledger/fabric</span>
+    <span class="l l-Scalar l-Scalar-Plain">command</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">orderer</span>
+    <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../system-genesis-block/genesis.block:/var/hyperledger/orderer/orderer.genesis.block</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">orderer.example.com:/var/hyperledger/production/orderer</span>
+    <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">7050:7050</span>
+    <span class="l l-Scalar l-Scalar-Plain">networks</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">test</span>
+
+  <span class="l l-Scalar l-Scalar-Plain">peer0.org1.example.com</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">container_name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">peer0.org1.example.com</span>
+    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">hyperledger/fabric-peer:$IMAGE_TAG</span>
+    <span class="l l-Scalar l-Scalar-Plain">environment</span><span class="p p-Indicator">:</span>
+      <span class="c1">#Generic peer variables</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock</span> <span class="c1"># 套接字地址</span>
+      <span class="c1"># the following setting starts chaincode containers on the same</span>
+      <span class="c1"># bridge network as the peers</span>
+      <span class="c1"># https://docs.docker.com/compose/networking/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_test</span> <span class="c1"># 属于哪个网络</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FABRIC_LOGGING_SPEC=INFO</span>
+      <span class="c1">#- FABRIC_LOGGING_SPEC=DEBUG</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_ENABLED=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_USELEADERELECTION=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_ORGLEADER=false</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_PROFILE_ENABLED=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt</span>
+      <span class="c1"># Peer specific variabes</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_ID=peer0.org1.example.com</span> <span class="c1"># peer 节点名字</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_ADDRESS=peer0.org1.example.com:7051</span> <span class="c1"># peer 节点地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_LISTENADDRESS=0.0.0.0:7051</span> <span class="c1"># peer 节点监听地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_CHAINCODEADDRESS=peer0.org1.example.com:7052</span> <span class="c1"># 链码地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052</span> <span class="c1"># 链码监听地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.example.com:7051</span> <span class="c1"># 启动后向哪些节点发起gossip连接，以加入网络</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051</span> <span class="c1"># 节点背组织外感知的地址</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_LOCALMSPID=Org1MSP</span> <span class="c1"># 组id</span>
+    <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/:/host/var/run/</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp:/etc/hyperledger/fabric/msp</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls:/etc/hyperledger/fabric/tls</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">peer0.org1.example.com:/var/hyperledger/production</span>
+    <span class="l l-Scalar l-Scalar-Plain">working_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/opt/gopath/src/github.com/hyperledger/fabric/peer</span>
+    <span class="l l-Scalar l-Scalar-Plain">command</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">peer node start</span>
+    <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">7051:7051</span>
+    <span class="l l-Scalar l-Scalar-Plain">networks</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">test</span>
+
+  <span class="l l-Scalar l-Scalar-Plain">peer0.org2.example.com</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">container_name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">peer0.org2.example.com</span>
+    <span class="l l-Scalar l-Scalar-Plain">image</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">hyperledger/fabric-peer:$IMAGE_TAG</span>
+    <span class="l l-Scalar l-Scalar-Plain">environment</span><span class="p p-Indicator">:</span>
+      <span class="c1">#Generic peer variables</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock</span>
+      <span class="c1"># the following setting starts chaincode containers on the same</span>
+      <span class="c1"># bridge network as the peers</span>
+      <span class="c1"># https://docs.docker.com/compose/networking/</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_test</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FABRIC_LOGGING_SPEC=INFO</span>
+      <span class="c1">#- FABRIC_LOGGING_SPEC=DEBUG</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_ENABLED=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_USELEADERELECTION=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_ORGLEADER=false</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_PROFILE_ENABLED=true</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt</span>
+      <span class="c1"># Peer specific variabes</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_ID=peer0.org2.example.com</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_ADDRESS=peer0.org2.example.com:9051</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_LISTENADDRESS=0.0.0.0:9051</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_CHAINCODEADDRESS=peer0.org2.example.com:9052</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:9051</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.example.com:9051</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">CORE_PEER_LOCALMSPID=Org2MSP</span>
+    <span class="l l-Scalar l-Scalar-Plain">volumes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/var/run/:/host/var/run/</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/fabric/msp</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls:/etc/hyperledger/fabric/tls</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">peer0.org2.example.com:/var/hyperledger/production</span>
+    <span class="l l-Scalar l-Scalar-Plain">working_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">/opt/gopath/src/github.com/hyperledger/fabric/peer</span>
+    <span class="l l-Scalar l-Scalar-Plain">command</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">peer node start</span>
+    <span class="l l-Scalar l-Scalar-Plain">ports</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">9051:9051</span>
+    <span class="l l-Scalar l-Scalar-Plain">networks</span><span class="p p-Indicator">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">test</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="peerchannelcreate.html" class="btn btn-neutral float-right" title="peer channel create 创建通道" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="configtxgen.html" class="btn btn-neutral" title="configtxgen创建通道配置" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

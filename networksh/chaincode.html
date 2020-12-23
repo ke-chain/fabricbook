@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>peer chaincode 运行链码 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="编译Fabric" href="../build.html"/>
+        <link rel="prev" title="peer lifecycle chaincode 创建链码" href="chaincodelife.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="prereqs.html">Prerequisites 安装环境和测试网络</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crypto.html">cryptogen生成证书</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configtxgen.html">configtxgen创建通道配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dockercompose.html">docker-compose 启动peers and orderering service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchannelcreate.html">peer channel create 创建通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincodelife.html">peer lifecycle chaincode 创建链码</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">peer chaincode 运行链码</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#peer-chaincode">peer chaincode 的用途？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-sh">在network.sh的使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peer-chaincode">peer chaincode 命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peer-chaincode">peer chaincode 命令参数什么含义？</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>peer chaincode 运行链码</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/chaincode.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="peer-chaincode">
+<span id="peer-chaincode"></span><h1>peer chaincode 运行链码<a class="headerlink" href="#peer-chaincode" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="peer-chaincode">
+<span id="id1"></span><h2>peer chaincode 的用途？<a class="headerlink" href="#peer-chaincode" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">chaincode</span></code> 命令允许管理员执行与一个节点上运行有关的链码，例如安装，实例化，调用，包装，查询和升级链码。</p>
+</div>
+<div class="section" id="network-sh">
+<span id="network-sh"></span><h2>在network.sh的使用场景是什么？<a class="headerlink" href="#network-sh" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">network.sh</span></code> 使用<code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">chaincode</span></code>调用和查询链码</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># 调用并初始化链码</span>
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile <span class="nv">$ORDERER_CA</span> -C <span class="nv">$CHANNEL_NAME</span> -n fabcar <span class="nv">$PEER_CONN_PARMS</span> --isInit -c <span class="s1">&#39;{&quot;function&quot;:&quot;initLedger&quot;,&quot;Args&quot;:[]}&#39;</span> 
+
+<span class="c1"># 查询链码</span>
+peer chaincode query -C <span class="nv">$CHANNEL_NAME</span> -n fabcar -c <span class="s1">&#39;{&quot;Args&quot;:[&quot;queryAllCars&quot;]}&#39;</span> 
+
+<span class="c1"># 调用链码将`CAR9`的拥有者设置为`Dave`</span>
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile <span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n fabcar --peerAddresses localhost:7051 --tlsRootCertFiles <span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles <span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c <span class="s1">&#39;{&quot;function&quot;:&quot;changeCarOwner&quot;,&quot;Args&quot;:[&quot;CAR9&quot;,&quot;Dave&quot;]}&#39;</span>
+
+<span class="c1"># 查询链码获取`CAR9`的信息</span>
+peer chaincode query -C mychannel -n fabcar -c <span class="s1">&#39;{&quot;Args&quot;:[&quot;queryCar&quot;,&quot;CAR9&quot;]}&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="peer-chaincode">
+<span id="id2"></span><h2>peer chaincode 命令的效果是什么？<a class="headerlink" href="#peer-chaincode" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">chaincode</span> <span class="pre">query</span> <span class="pre">-C</span> <span class="pre">$CHANNEL_NAME</span> <span class="pre">-n</span> <span class="pre">fabcar</span> <span class="pre">-c</span> <span class="pre">'{&quot;Args&quot;:[&quot;queryAllCars&quot;]}'</span></code> 成功会返回如下信息：</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="o">[{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR0&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Toyota&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Prius&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;blue&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Tomoko&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR1&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Ford&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Mustang&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;red&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Brad&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR2&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Hyundai&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Tucson&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;green&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Jin Soo&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR3&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Volkswagen&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Passat&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;yellow&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Max&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR4&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Tesla&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;S&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;black&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Adriana&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR5&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Peugeot&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;205&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;purple&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Michel&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR6&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Chery&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;S22L&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;white&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Aarav&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR7&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Fiat&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Punto&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;violet&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Pari&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR8&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Tata&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Nano&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;indigo&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Valeria&quot;</span><span class="o">}}</span>,<span class="o">{</span><span class="s2">&quot;Key&quot;</span>:<span class="s2">&quot;CAR9&quot;</span>,<span class="s2">&quot;Record&quot;</span>:<span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Holden&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Barina&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;brown&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Shotaro&quot;</span><span class="o">}}]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">chaincode</span> <span class="pre">query</span> <span class="pre">-C</span> <span class="pre">mychannel</span> <span class="pre">-n</span> <span class="pre">fabcar</span> <span class="pre">-c</span> <span class="pre">'{&quot;Args&quot;:[&quot;queryCar&quot;,&quot;CAR9&quot;]}'</span></code>成功会返回如下信息：</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="o">{</span><span class="s2">&quot;make&quot;</span>:<span class="s2">&quot;Holden&quot;</span>,<span class="s2">&quot;model&quot;</span>:<span class="s2">&quot;Barina&quot;</span>,<span class="s2">&quot;colour&quot;</span>:<span class="s2">&quot;brown&quot;</span>,<span class="s2">&quot;owner&quot;</span>:<span class="s2">&quot;Dave&quot;</span><span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="peer-chaincode">
+<span id="id3"></span><h2>peer chaincode 命令参数什么含义？<a class="headerlink" href="#peer-chaincode" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">chaincode</span></code> <code class="docutils literal notranslate"><span class="pre">invoke</span></code>和<code class="docutils literal notranslate"><span class="pre">query</span></code><ul>
+<li><code class="docutils literal notranslate"><span class="pre">-o</span></code> :orderer节点的url</li>
+<li><code class="docutils literal notranslate"><span class="pre">--ordererTLSHostnameOverride</span></code>:建立tls连接时优先使用的hostname</li>
+<li><code class="docutils literal notranslate"><span class="pre">--tls</span></code> ：开启tls</li>
+<li><code class="docutils literal notranslate"><span class="pre">--cafile</span></code>：orderer终端PEM编码的可信任证书的地址</li>
+<li><code class="docutils literal notranslate"><span class="pre">-C</span></code>：通道id</li>
+<li><code class="docutils literal notranslate"><span class="pre">-n</span></code>: 链码名字</li>
+<li><code class="docutils literal notranslate"><span class="pre">--isInit</span></code>：是否调用<code class="docutils literal notranslate"><span class="pre">init</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">-c</span></code> : 链码构造器信息(json 格式)</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../build.html" class="btn btn-neutral float-right" title="编译Fabric" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="chaincodelife.html" class="btn btn-neutral" title="peer lifecycle chaincode 创建链码" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

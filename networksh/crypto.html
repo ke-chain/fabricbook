@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cryptogen生成证书 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="configtxgen创建通道配置" href="configtxgen.html"/>
+        <link rel="prev" title="Prerequisites 安装环境和测试网络" href="prereqs.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="prereqs.html">Prerequisites 安装环境和测试网络</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cryptogen生成证书</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cryptogen">cryptogen的用途？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-sh">在network.sh的使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cryptogen-generate">cryptogen generate 命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cryptogen">cryptogen配置文件配置项的含义是什么？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="configtxgen.html">configtxgen创建通道配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dockercompose.html">docker-compose 启动peers and orderering service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchannelcreate.html">peer channel create 创建通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincodelife.html">peer lifecycle chaincode 创建链码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincode.html">peer chaincode 运行链码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>cryptogen生成证书</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/crypto.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cryptogen">
+<span id="cryptogen"></span><h1>cryptogen生成证书<a class="headerlink" href="#cryptogen" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cryptogen">
+<span id="id1"></span><h2>cryptogen的用途？<a class="headerlink" href="#cryptogen" title="Permalink to this headline">¶</a></h2>
+<p>是用来生成 Hyperledger Fabric 密钥材料的工具。
+它为测试提供了一种预配置网络的工具。通常它不应使用在生产环境中。</p>
+</div>
+<div class="section" id="network-sh">
+<span id="network-sh"></span><h2>在network.sh的使用场景是什么？<a class="headerlink" href="#network-sh" title="Permalink to this headline">¶</a></h2>
+<p>network.sh中使用cryptogen生成组织org1，org2，orderer的证书</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cryptogen generate --config<span class="o">=</span>./organizations/cryptogen/crypto-config-org1.yaml --output<span class="o">=</span><span class="s2">&quot;organizations&quot;</span>
+cryptogen generate --config<span class="o">=</span>./organizations/cryptogen/crypto-config-org2.yaml --output<span class="o">=</span><span class="s2">&quot;organizations&quot;</span>
+cryptogen generate --config<span class="o">=</span>./organizations/cryptogen/crypto-config-orderer.yaml --output<span class="o">=</span><span class="s2">&quot;organizations&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cryptogen-generate">
+<span id="cryptogen-generate"></span><h2>cryptogen generate 命令的效果是什么？<a class="headerlink" href="#cryptogen-generate" title="Permalink to this headline">¶</a></h2>
+<p>我们以生成组织org1证书为例</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cryptogen generate --config<span class="o">=</span>./organizations/cryptogen/crypto-config-org1.yaml --output<span class="o">=</span><span class="s2">&quot;organizations&quot;</span>
+</pre></div>
+</div>
+<p>在”organizations”目录下
+<img alt="" src="../_images/cryptoorg.png" />
+证书放在msp目录中，TLS证书和秘钥在对应tls目录中</p>
+<p>这些生成的证书目录对应<code class="docutils literal notranslate"><span class="pre">docker-compose-test-net.yaml</span></code> 文件的证书配置。故不可移动，否则后续启动docker容器后无法找到对应证书。</p>
+</div>
+<div class="section" id="cryptogen">
+<span id="id2"></span><h2>cryptogen配置文件配置项的含义是什么？<a class="headerlink" href="#cryptogen" title="Permalink to this headline">¶</a></h2>
+<p>文件如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">PeerOrgs</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Org1</span>
+    <span class="l l-Scalar l-Scalar-Plain">Domain</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">org1.example.com</span>
+    <span class="l l-Scalar l-Scalar-Plain">EnableNodeOUs</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+    <span class="l l-Scalar l-Scalar-Plain">Template</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">Count</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>  <span class="c1">#peer节点数  url：peer0.org1.example.com</span>
+      <span class="l l-Scalar l-Scalar-Plain">SANS</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">localhost</span>
+
+    <span class="l l-Scalar l-Scalar-Plain">Users</span><span class="p p-Indicator">:</span>
+      <span class="l l-Scalar l-Scalar-Plain">Count</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>  <span class="c1">#普通用户数</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">Name</span></code> 组织名字</li>
+<li><code class="docutils literal notranslate"><span class="pre">Domain</span></code> 组织根域名，对应目录：org1.example.com</li>
+<li><code class="docutils literal notranslate"><span class="pre">EnableNodeOUs</span></code> 是否支持nodejs</li>
+<li><code class="docutils literal notranslate"><span class="pre">Template</span></code> 模板,对应目录：peers<ul>
+<li><code class="docutils literal notranslate"><span class="pre">Count</span></code> peer节点数，对应目录：peers/peer0.org1.example.com</li>
+<li><code class="docutils literal notranslate"><span class="pre">SANS</span></code> Subject Alternative Name,别名</li>
+</ul>
+</li>
+<li><code class="docutils literal notranslate"><span class="pre">Users</span></code> 用户,对应目录：users<ul>
+<li><code class="docutils literal notranslate"><span class="pre">Count</span></code> 用户数,对应目录：users/User1&#64;org33.example.com</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="configtxgen.html" class="btn btn-neutral float-right" title="configtxgen创建通道配置" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="prereqs.html" class="btn btn-neutral" title="Prerequisites 安装环境和测试网络" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,131 @@
+# 获取 MSP :Membership Service Provider
+
+## Fabric 中 MSP 用途是什么？
+一个MSP结构中常见的组成部分及其用途：
+
+- 一组信任的根证书，是整个组织证书信任的基础，根证书可以签发中间层证书；
+- MSP的管理员的身份证书，管理员可以对MSP中证书进行管理；
+- 组织单元（Organizational Unit）列表（可选）；
+- 一组信任的中间证书，中间证书由根证书签发（可选）； 
+- 证书撤销列表，代表被吊销的证书名单（可选）。
+
+
+## MSP 底层调用了什么？
+
+`loadLocalMSP(conf)` 调用到最后获取的是 bccspmsp 。
+bccspmsp 最终调用调用函数 setupCAs 加载 ${FABRIC_CFG_PATH}/msp 目录下的证书。
+msp 目录中证书如下：
+- admincerts ：组织管理员的身份验证证书，被根证书签名。
+- cacerts ：组织的根证书，同ca目录下文件。
+- keystore ：本节点的身份私钥，用来签名
+- signcerts ：验证本节点签名的证书，被组织根证书签名 
+- tlscacerts ：用于TLS的CA证书，自签名。
+- tlsintermediatecerts ：TLS中间证书
+
+```go
+
+// orderer 包main函数，生成第一个BCCSP实例
+func Main() {
+    ...
+    // 加载 MSP 并获取签名身份
+    signer, signErr := loadLocalMSP(conf).GetDefaultSigningIdentity() 
+    ...
+}
+
+func loadLocalMSP(conf *localconfig.TopLevel) msp.MSP {
+    ...
+    // 新建 bccspmsp 实例
+    localmsp, err := msp.New(opts, factory.GetDefault())
+    ...
+    // 配置 bccspmsp 的各种证书
+    if err = localmsp.Setup(mspConfig); err != nil {
+    ...  
+}
+
+func New(opts NewOpts, cryptoProvider bccsp.BCCSP) (MSP, error) {
+    ...
+    // 新建 bccspmsp 实例
+    return newBccspMsp(MSPv1_4_3, cryptoProvider)
+    ...
+}
+
+func newBccspMsp(version MSPVersion, defaultBCCSP bccsp.BCCSP) (MSP, error) {
+    // 新建 bccspmsp 实现代码
+	theMsp := &bccspmsp{}
+	theMsp.version = version
+    theMsp.bccsp = defaultBCCSP
+    ...
+    case MSPv1_4_3:
+    	theMsp.internalSetupFunc = theMsp.setupV142
+		theMsp.internalValidateIdentityOusFunc = theMsp.validateIdentityOUsV142
+		theMsp.internalSatisfiesPrincipalInternalFunc = theMsp.satisfiesPrincipalInternalV142
+		theMsp.internalSetupAdmin = theMsp.setupAdminsV142
+    ...
+}
+
+```
+
+
+```go
+// 配置 bccspmsp 的各种证书
+func (msp *bccspmsp) Setup(conf1 *m.MSPConfig) error {
+    ...
+    // 配置 bccspmsp 证书的调用函数
+    msp.internalSetupFunc(conf)
+    ...
+}
+
+func (msp *bccspmsp) setupV142(conf *m.FabricMSPConfig) error {
+    err := msp.preSetupV142(conf)
+    ...
+}
+
+func (msp *bccspmsp) preSetupV142(conf *m.FabricMSPConfig) error {
+	// setup crypto config
+	if err := msp.setupCrypto(conf); err != nil {
+    ...
+	// Setup CAs
+	if err := msp.setupCAs(conf); err != nil {
+    ...
+	// Setup CRLs
+	if err := msp.setupCRLs(conf); err != nil {
+    ...
+	// Finalize setup of the CAs
+	if err := msp.finalizeSetupCAs(); err != nil {
+    ...
+	// setup the signer (if present)
+	if err := msp.setupSigningIdentity(conf); err != nil {
+    ...
+	// setup TLS CAs
+	if err := msp.setupTLSCAs(conf); err != nil {
+    ...
+
+	// setup the OUs
+	if err := msp.setupOUs(conf); err != nil {
+    ...
+
+	// setup NodeOUs
+	if err := msp.setupNodeOUsV142(conf); err != nil {
+    ...
+
+	// Setup Admins
+	if err := msp.setupAdmins(conf); err != nil {
+    ...
+}
+```
+
+## 重造 MSP
+
+将Hyperledger Fabric的 MSP 代码加入工程。
+
+```sh
+$ make orderer
+$ docker run -v $PWD/build/bin:/usr/local/bin  -it --rm hyperledger/fabric-orderer:2.2 /bin/sh
+$ orderer
+...
+打印默认 msp 信息
+```
+
+## 本文源码地址
+3.0代码包含BCCSP和MSP的实现。
+https://github.com/ke-chain/fabric/tree/v3.0

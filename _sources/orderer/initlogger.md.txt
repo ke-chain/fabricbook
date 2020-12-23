@@ -1,0 +1,162 @@
+# 初始化日志
+
+## Fabric 是怎么记录日志的？
+
+main.go
+```go
+// 获取日志实例
+var logger = flogging.MustGetLogger("orderer.common.server")
+func Main() {
+    ...
+    // 初始化日志
+	initializeLogging() 
+    // 打印配置信息
+	prettyPrintStruct(conf)
+}
+
+func initializeLogging() {
+    // 获取环境变量
+	loggingSpec := os.Getenv("FABRIC_LOGGING_SPEC")
+    loggingFormat := os.Getenv("FABRIC_LOGGING_FORMAT")
+    
+    // 设置log配置信息
+	flogging.Init(flogging.Config{
+		Format:  loggingFormat,
+		Writer:  os.Stderr,
+		LogSpec: loggingSpec,
+	})
+}
+
+func prettyPrintStruct(i interface{}) {
+    // 获取配置信息
+    params := localconfig.Flatten(i)
+    
+    // 将配置信息写入缓存
+	var buffer bytes.Buffer
+	for i := range params {
+		buffer.WriteString("\n\t")
+		buffer.WriteString(params[i])
+    }
+    
+    // 日志记录缓存信息
+	logger.Infof("Orderer config values:%s\n", buffer.String())
+}
+
+``` 
+
+日志信息如下：
+```sh
+
+# 初始化信息 调用localconfig.Load 打印的日志
+{"level":"info","ts":1607307438.2768466,"caller":"localconfig/config.go:497","msg":"Kafka.Version unset, setting to 0.10.2.0"}
+
+# 配置信息 调用logger.Infof 打印的日志
+2020-12-07 02:17:18.278 UTC [orderer.common.server] prettyPrintStruct -> INFO 001 Orderer config values:
+	General.ListenAddress = "127.0.0.1"
+    ...
+    ChannelParticipation.RemoveStorage = false
+```
+
+
+## 记录日志的底层调用了什么？
+`logger.Infof` 调用到最后是使用的 `File.Write` 函数。
+`File.Write` 函数对应` flogging.Init` 传入的 `os.Stderr`。
+调用流程如下：
+```go
+// main.go 打印配置信息
+func prettyPrintStruct(i interface{}) {
+    // 日志记录缓存信息
+	logger.Infof("Orderer config values:%s\n", buffer.String())
+}
+// 所属包：fabric@v2.1.1+incompatible 
+func (f *FabricLogger) Infof(template string, args ...interface{})    {
+    f.s.Infof(template, args...)
+}
+
+// 下面四个函数所属包：zap@v1.14.1
+func (s *SugaredLogger) Infof(template string, args ...interface{}) {
+	s.log(InfoLevel, template, args, nil)
+}
+
+func (s *SugaredLogger) log(lvl zapcore.Level, template string, fmtArgs []interface{}, context []interface{}) {
+    ....
+	if ce := s.base.Check(lvl, msg); ce != nil {
+		ce.Write(s.sweetenFields(context)...)
+	}
+}
+
+func (ce *CheckedEntry) Write(fields ...Field) {
+    ....
+	for i := range ce.cores {
+		err = multierr.Append(err, ce.cores[i].Write(ce.Entry, fields))
+	}
+    ....
+}
+
+func (s *lockedWriteSyncer) Write(bs []byte) (int, error) {
+    ....
+    n, err := s.ws.Write(bs)
+    ....
+}
+
+// 所属包 os.File
+func (f *File) Write(b []byte) (n int, err error) {
+    ....
+    n, e := f.write(b)
+    ....
+}
+
+```
+## 重造日志
+
+
+复制fabric/common/flogging下的 core.go、global.go、levels.go、loggerlevels.go、logging.go、zap.go。
+
+orderer/common/server/main.go 新增代码如下：
+```go
+// 获取日志实例
+var logger = flogging.MustGetLogger("orderer.common.server")
+func Main() {
+    ...
+    // 初始化日志
+	initializeLogging() 
+    // 打印配置信息
+	prettyPrintStruct(conf)
+}
+
+func initializeLogging() {
+    // 获取环境变量
+	loggingSpec := os.Getenv("FABRIC_LOGGING_SPEC")
+    loggingFormat := os.Getenv("FABRIC_LOGGING_FORMAT")
+    
+    // 设置log配置信息
+	flogging.Init(flogging.Config{
+		Format:  loggingFormat,
+		Writer:  os.Stderr,
+		LogSpec: loggingSpec,
+	})
+}
+
+func prettyPrintStruct(i interface{}) {
+    // 获取配置信息
+    params := localconfig.Flatten(i)
+    
+    // 将配置信息写入缓存
+	var buffer bytes.Buffer
+	for i := range params {
+		buffer.WriteString("\n\t")
+		buffer.WriteString(params[i])
+    }
+    
+    // 日志记录缓存信息
+	logger.Infof("Orderer config values:%s\n", buffer.String())
+}
+```
+
+## 本文源码地址
+https://github.com/ke-chain/fabric/tree/v2.0
+
+## 今天学到了什么？
+
+- 如何使用Uber zap 日志库
+

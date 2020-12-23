@@ -1,0 +1,622 @@
+# effective go 对 Fabric 的影响
+
+## Names 命名
+#### 包名
+> 用于创建 ring.Ring 的新实例的函数（这就是 Go 中的构造函数）一般会称之为 NewRing，但由于 Ring 是该包所导出的唯一类型，且该包也叫 ring，因此它可以只叫做 New，它跟在包的后面，就像 ring.New。   
+> 摘自 effective go ： 包名
+
+在 Fabric 的代码代码结构中，一个包中弱只有一个构造函数，则名称为New。如果一个包有多个构造函数，则会使用New+结构体名称 的方式。
+例如 bccsp/idemix 目录下只有一个构造函数，故构造函数直接命名为 New 。
+而 bccsp/idemix/handlers 有多个构造函数，则命名为 NewIssuerSecretKey ，NewIssuerPublicKey 等。
+
+#### 获取器
+> Go 并不对获取器（getter）和设置器（setter）提供自动支持。 你应当自己提供获取器和设置器，通常很值得这样做，但若要将 Get 放到获取器的名字中，既不符合习惯，也没有必要。若你有个名为 owner （小写，未导出）的字段，其获取器应当名为 Owner（大写，可导出）而非 GetOwner。大写字母即为可导出的这种规定为区分方法和字段提供了便利。 若要提供设置器方法，SetOwner 是个不错的选择。   摘自 effective go ： 获取器
+> 摘自 effective go ： 获取器
+
+编程中为了控制私有字段的访问，经常会对私有字段 包装一个获取器 Getters 和设置器 Setters。
+
+fabric 代码中有这样的例子：
+```go
+var (
+	// identityUsageThreshold sets the maximum time that an identity
+	// can not be used to verify some signature before it will be deleted
+	usageThreshold = time.Hour
+)
+
+func SetIdentityUsageThreshold(duration time.Duration) {
+	atomic.StoreInt64((*int64)(&usageThreshold), int64(duration))
+}
+
+// Server returns the grpc.Server for the GRPCServer instance
+func (gServer *GRPCServer) Server() *grpc.Server {
+	return gServer.server
+}
+```
+
+#### 接口名
+
+> 按照约定，只包含一个方法的接口应当以该方法的名称加上 - er 后缀来命名，如 Reader、Writer、 Formatter、CloseNotifier 等。请将字符串转换方法命名为 String 而非 ToString。 摘自 effective go ： 接口名
+> 摘自 effective go ： 接口名
+
+在 Fabric 字符串转换方法命名都为 String 。
+
+在 Fabric 中并没有全按照上述命名，有多个方法的接口同样 加上 - er 后缀来命名。
+bccsp/sw/internals.go 中的例子:
+```go
+// Signer is a BCCSP-like interface that provides signing algorithms
+type Signer interface {
+	Sign(k bccsp.Key, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error)
+}
+
+// Verifier is a BCCSP-like interface that provides verifying algorithms
+type Verifier interface {
+	Verify(k bccsp.Key, signature, digest []byte, opts bccsp.SignerOpts) (valid bool, err error)
+}
+
+// Hasher is a BCCSP-like interface that provides hash algorithms
+type Hasher interface {
+	Hash(msg []byte, opts bccsp.HashOpts) (hash []byte, err error)
+	GetHash(opts bccsp.HashOpts) (h hash.Hash, err error)
+}
+```
+
+#### 驼峰记法
+
+Fabric 的方法名和字段都是按驼峰记法写的。文件名则是全部小写。
+比如 结构体名称为：DeliverClient 文件名则为：deliverclient.go
+
+##  Semicolons 分号
+
+go 会在数字或常量或者 break， continue， fallthrough， return， ++ ，-- ，)， }， 这些符号后加上分号。
+gofmt会自动帮忙处理，如果出错编译也会提示。
+
+
+## Control structures 控制结构
+#### if
+> 由于 if 和 switch 可接受初始化语句， 因此用它们来设置局部变量十分常见。
+> 在 Go 的库中，你会发现若 if 语句不会执行到下一条语句时，亦即其执行体 以 break、continue、goto 或 return 结束时，不必要的 else 会被省略。
+> 摘自 effective go ： If
+
+Fabric中有大量类似使用，例子如下：
+```go
+	if err := is.mcs.ValidateIdentity(identity); err != nil {
+		return err
+	}
+```
+
+
+#### 重新声明与再次赋值
+> 在满足下列条件时，已被声明的变量 v 可出现在:= 声明中 
+> 
+> - 本次声明与已声明的 v 处于同一作用域中（若 v 已在外层作用域中声明过，则此次声明会创建一个新的变量 §），
+> - 在初始化中与其类型相应的值才能赋予 v，且
+> - 在此次声明中至少另有一个变量是新声明的。
+> 摘自 effective go ： 重新声明与再次赋值
+
+根据以上条件以下函数编译时正确的:
+```go
+func main() {
+	f, err := os.Open("name")
+	d, err := f.Stat()
+
+	fmt.Println(f, err, d)
+
+}
+
+```
+
+#### for
+
+> Go 的 for 循环类似于 C，但却不尽相同。它统一了 for 和 while，不再有 do-while 了。它有三种形式，但只有一种需要分号。
+> 摘自 effective go ： for
+```go
+// Like a C for
+for init; condition; post { }
+
+// Like a C while
+for condition { }
+
+// Like a C for(;;)
+for { }
+
+```
+遍历数组还有 rang 可以使用:
+
+```go
+for key, value := range oldMap {
+    newMap[key] = value
+}
+```
+
+for 的使用非常频繁和常见，故就不举例了。
+
+#### Switch
+Switch 的三个特殊用法在 Fabric 中的例子
+>  “若 switch 后面没有表达式，它将匹配 true，因此，我们可以将 if-else-if-else 链写成一个 switch，这也更符合 Go 的风格”
+```go
+	switch {
+	case swOpts.Ephemeral:
+		ks = sw.NewDummyKeyStore()
+	case swOpts.FileKeystore != nil:
+		fks, err := sw.NewFileBasedKeyStore(nil, swOpts.FileKeystore.KeyStorePath, false)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to initialize software key store")
+		}
+		ks = fks
+	case swOpts.InmemKeystore != nil:
+		ks = sw.NewInMemoryKeyStore()
+	default:
+		// Default to ephemeral key store
+		ks = sw.NewDummyKeyStore()
+	}
+```
+> “case 可通过逗号分隔来列举相同的处理条件。”
+```go
+func nameToLevel(level string) (zapcore.Level, error) {
+	switch level {  
+	...
+	case "WARNING", "WARN", "warning", "warn":
+		return zapcore.WarnLevel, nil
+    ...
+	}
+}
+```
+> “在 Go 中，我们只需将标签放置到循环外，然后 “蹦” 到那里即可。”
+```go
+
+func (ord *Orderer) completeInitialization(configDir string) {
+loop:
+	for {
+		switch {
+		...
+		default:
+			break loop
+		}
+    }
+    ...
+}
+```
+
+#### Type switch
+Type switch 在Fabric的例子
+
+```go
+func (s *userSecreKeySignerMultiplexer) Sign(k bccsp.Key, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error) {
+	switch opts.(type) {
+	case *bccsp.IdemixSignerOpts:
+		return s.signer.Sign(k, digest, opts)
+	case *bccsp.IdemixNymSignerOpts:
+		return s.nymSigner.Sign(k, digest, opts)
+	case *bccsp.IdemixCredentialRequestSignerOpts:
+		return s.credentialRequestSigner.Sign(k, digest, opts)
+	default:
+		return nil, errors.New("invalid opts, expected *bccsp.IdemixSignerOpt or *bccsp.IdemixNymSignerOpts or *bccsp.IdemixCredentialRequestSignerOpts")
+	}
+}
+```
+
+## Functions 函数
+#### Multiple return values  and Named result parameters
+
+函数多返回值和可命名结果形参的例子如下：
+
+```go
+func (s *userSecreKeySignerMultiplexer) Sign(k bccsp.Key, digest []byte, opts bccsp.SignerOpts) (signature []byte, err error) {
+```
+
+#### Defer 
+
+defer 的两个需要注意的特性：
+1. defer 的函数中的实参是马上执行的
+2. 多个 defer 按照后进先出( LIFO )的原则执行
+
+effective go 中的 defer例子简化版：
+```go
+func trace(s string) string {
+	fmt.Println("entering:", s)
+	return s
+}
+
+func un(s string) {
+	fmt.Println("leaving:", s)
+}
+
+func main() {
+	defer un(trace("b"))
+	fmt.Println("in b")
+	defer un(trace("a"))
+	fmt.Println("in a")
+}
+/*  结果如下
+entering: b
+in b
+entering: a
+in a
+leaving: a
+leaving: b
+
+*/
+
+```
+
+
+
+## Data 数据
+#### Allocation with new
+> “让我们先来看看 new。这是个用来分配内存的内建函数， 但与其它语言中的同名函数不同，它不会初始化内存，只会将内存置零。”
+
+需要注意的是 new 返回了对像的指针。
+
+Fabric 中大量使用了 new 构造对像，例子如下：
+```go 
+ipk := new(cryptolib.IssuerPublicKey)
+```
+
+####  Constructors and composite literals 构造函数与复合字面
+
+相对于 new 构造函数中复合字面来构建对像更为常见：
+
+```go
+// NewApplicationOrgConfig creates a new config for an application org
+func NewApplicationOrgConfig(id string, orgGroup *cb.ConfigGroup, mspConfig *MSPConfigHandler) (*ApplicationOrgConfig, error) {
+	...
+	aoc := &ApplicationOrgConfig{
+		name:   id,
+		protos: protos,
+		OrganizationConfig: &OrganizationConfig{
+			name:             id,
+			protos:           orgProtos,
+			mspConfigHandler: mspConfig,
+		},
+	}
+    ...
+	return aoc, nil
+}
+```
+
+
+需要注意的是  new(File) 和 &File{} 是等价的。
+
+
+#### Allocation with make  make 分配
+
+> “内建函数 make(T, args) 的目的不同于 new(T)。它只用于创建切片、映射和信道，并返回类型为 T（而非 *T）的一个已初始化 （而非置零）的值。 出现这种用差异的原因在于，这三种类型本质上为引用数据类型，它们在使用前必须初始化。 例如，切片是一个具有三项内容的描述符，包含一个指向（数组内部）数据的指针、长度以及容量， 在这三项被初始化之前，该切片为 nil。对于切片、映射和信道，make 用于初始化其内部的数据结构并准备好将要使用的值”
+
+
+ make 一般用来构建 slices, maps, and channels 对像 而且非常常见， 在Fabric 中大量大使用。就不举例了。
+
+ 需要注意的是 make  返回是结构体对像，而不是指针。
+
+
+#### Arrays 
+> 数组的特性：
+> - 数组是值。将一个数组赋予另一个数组会复制其所有元素。
+> - 特别地，若将某个数组传入某个函数，它将接收到该数组的一份副本而非指针。
+> - 数组的大小是其类型的一部分。类型 [10]int 和 [20]int 是不同的。
+
+Fabric 数组的使用非常少，主要还是用 slices 。
+需要注意的是 [10]int 是数组，[]int 就是 slices 。两个看起来比较像。
+
+#### Slices 切片
+
+> “切片保存了对底层数组的引用，若你将某个切片赋予另一个切片，它们会引用同一个数组。 若某个函数将一个切片作为参数传入，则它对该切片元素的修改对调用者而言同样可见， 这可以理解为传递了底层数组的指针。”
+
+Fabric 大量使用了 Slices 。例子如下：
+```go
+type ecdsaPrivateKey struct {
+    ski []byte
+    ...
+}
+
+```
+
+需要注意的是 Slices 的传递，相当于传递底层数组的指针。故作为参数传入函数时，函数中对于 Slices 的修改也会改变原 Slices 。
+
+
+#### Two-dimensional slices 而为切片
+
+> 若切片会增长或收缩， 就应该通过独立分配来避免覆盖下一行；若不会，用单次分配来构造对象会更加高效。 以下是这两种方法的大概代码，仅供参考。首先是一次一行的：
+> 
+> // 分配顶层切片。
+> picture := make([][]uint8, YSize) // 每 y 个单元一行。
+> // 遍历行，为每一行都分配切片
+> for i := range picture {
+>     picture[i] = make([]uint8, XSize)
+> }
+> And now as one allocation, sliced into lines:
+> 
+> 
+> 现在是一次分配，对行进行切片：
+> // 分配顶层切片，和前面一样。
+> picture := make([][]uint8, YSize) // 每 y 个单元一行。
+> // 分配一个大的切片来保存所有像素
+> pixels := make([]uint8, XSize*YSize) // 拥有类型 []uint8，尽管图片是 [][]uint8.
+> // 遍历行，从剩余像素切片的前面切出每行来。
+> for i := range picture {
+>    picture[i], pixels = pixels[:XSize], pixels[XSize:]
+> }
+
+
+Fabric 大量使用了 `[][]interface{}` 这样的形式用于模拟数据测试。
+
+
+#### Maps 映射
+
+> 映射是方便而强大的内建数据结构，它可以关联不同类型的值。其键可以是任何相等性操作符支持的类型， 如整数、浮点数、复数、字符串、指针、接口（只要其动态类型支持相等性判断）、结构以及数组。 切片不能用作映射键，因为它们的相等性还未定义。与切片一样，映射也是引用类型。 若将映射传入函数中，并更改了该映射的内容，则此修改对调用者同样可见。
+
+map的常见操作如下：
+```go
+// 构建 map 实例
+var timeZone = map[string]int{
+    "UTC":  0*60*60,
+    "EST": -5*60*60,
+    "CST": -6*60*60,
+    "MST": -7*60*60,
+    "PST": -8*60*60,
+}
+
+//  取值
+offset := timeZone["EST"]
+// 判断是否存在
+seconds, ok := timeZone[tz]
+// 删除
+delete(timeZone, "PDT")
+```
+
+需要注意是 map 与切片一样， 都是持有了底层数据结构的引用。 上面的中文翻译有点问题，不是引用类型。
+原文为 Like slices, maps hold references to an underlying data structure.
+
+#### Printing
+
+常见打印的函数:
+```go
+fmt.Printf("Hello %d\n", 23)
+fmt.Fprint(os.Stdout, "Hello ", 23, "\n")
+fmt.Println("Hello", 23)
+fmt.Println(fmt.Sprint("Hello ", 23))
+```
+
+打印在Fabric 中基本都封装进了 logger 。
+需要注意的是 Fprintf ，Printf 使用了反射，大量使用的话会降低程序性能。
+
+##### Append
+> append 的定义为：func append(slice []T, elements ...T) []T
+> 其中的 T 为任意给定类型的占位符。实际上，你无法在 Go 中编写一个类型 T 由调用者决定的函数。这也就是为何 append 为内建函数的原因：它需要编译器的支持。
+
+append 的常见用法：
+```go
+x := []int{1,2,3}
+y := []int{4,5,6}
+x = append(x, 4, 5, 6)
+x = append(x, y...)”
+
+```
+
+## Initialization
+
+#### Constants
+
+> Go 中的常量就是不变量。它们在编译时创建，即便它们可能是函数中定义的局部变量。 常量只能是数字、字符（符文）、字符串或布尔值。由于编译时的限制， 定义它们的表达式必须也是可被编译器求值的常量表达式。例如 1<<3 就是一个常量表达式，而 math.Sin(math.Pi/4) 则不是，因为对 math.Sin 的函数调用在运行时才会发生。
+> 在 Go 中，枚举常量使用枚举器 iota 创建。由于 iota 可为表达式的一部分，而表达式可以被隐式地重复，这样也就更容易构建复杂的值的集合了。
+
+需要注意是 1+iota  的枚举值为 1,2,3... 而 1 << iota的值为 1,2,4...
+
+##### Variables
+
+常见变量初始化如下:
+
+```go
+var (
+    home   = os.Getenv("HOME")
+    user   = os.Getenv("USER")
+    gopath = os.Getenv("GOPATH")
+)
+```
+
+#### The init function
+> 每个源文件都可以通过定义自己的无参数 init 函数来设置一些必要的状态。 （其实每个文件都可以拥有多个 init 函数。）而它的结束就意味着初始化结束： 只有该包中的所有变量声明都通过它们的初始化器求值后 init 才会被调用， 而那些 init 只有在所有已导入的包都被初始化后才会被求值。
+
+初始化顺序为导入依赖包->依赖包 const ->依赖包 var ->依赖包 init -> const -> var-> init 。
+
+
+
+##  Methods
+
+#### Pointers vs. Values
+
+> 以指针或值为接收者的区别在于：值方法可通过指针和值调用， 而指针方法只能通过指针来调用。
+> 之所以会有这条规则是因为指针方法可以修改接收者；通过值调用它们会导致方法接收到该值的副本， 因此任何修改都将被丢弃，因此该语言不允许这种错误。不过有个方便的例外：若该值是可寻址的， 那么该语言就会自动插入取址操作符来对付一般的通过值调用的指针方法。
+
+
+Fabric 中大多方法传递的是指针。因为这样调用方法可以直接在对像上操作而不需要再拷贝一份。
+
+## Interfaces and other types
+
+##### 接口
+
+
+> Go 中的接口为指定对象的行为提供了一种方法：如果某样东西可以完成这个， 那么它就可以用在这里。
+
+需要注意的是 go 不要显式实现该结构，只需要有接口对应的方法即可。
+
+
+#### Conversions
+
+effective go案例如下:
+
+```go 
+type Sequence []int
+func (s Sequence) String() string {
+    sort.Sort(s)
+    return fmt.Sprint([]int(s))
+}
+```
+
+需要注意的是转换过程并不会创建新值，它只是值暂让现有的时看起来有个新类型而已。 （还有些合法转换则会创建新值，如从整数转换为浮点数等。）
+
+#### Interface conversions and type assertions
+
+Interface conversions 的语法 ：`switch str := value.(type)`
+type assertions 的语法 ： `str, ok := value.(string)`
+
+
+
+#### 通用性 
+> 若某种现有的类型仅实现了一个接口，且除此之外并无可导出的方法，则该类型本身就无需导出。 仅导出该接口能让我们更专注于其行为而非实现，其它属性不同的实现则能镜像该原始类型的行为。 这也能够避免为每个通用接口的实例重复编写文档。
+
+这样的设计 Fabric 有很多，例如：
+```go
+func (f *SWFactory) Get(config *FactoryOpts) (bccsp.BCCSP, error) {
+```
+
+只返回了接口而不是具体实现。
+
+
+#### Interfaces and methods
+
+结构体，channel ，整数，函数都可以添加方法，实现接口。
+
+## The blank identifier
+
+> 它表示只写的值，在需要变量但不需要实际值的地方用作占位符
+
+
+#### Unused imports and variables
+
+一般用来保证顺利编译
+例子：
+```go
+_, err = ks.GetKey(ski)
+```
+
+#### Import for side effect
+
+> 例如，在 net/http/pprof 包的 init 函数中记录了 HTTP 处理程序的调试信息。它有个可导出的 API， 但大部分客户端只需要该处理程序的记录和通过 Web 叶访问数据。只为了其副作用来哦导入该包， 只需将包重命名为空白标识符
+```go
+import (
+    _ "net/http/pprof"
+)
+```
+
+#### Interface checks
+> 在这种结构中出现空白标识符，即表示该声明的存在只是为了类型检查。 不过请不要为满足接口就将它用于任何类型。作为约定， 仅当代码中不存在静态类型转换时才能这种声明，毕竟这是种罕见的情况。
+Fabric 的例子：
+```go
+var _ flogging.Observer = new(Observer)
+```
+
+## Embedding
+
+> 只有接口能被嵌入到接口中 
+> 内嵌类型的方法可以直接引用
+> 若我们需要直接引用内嵌字段，可以忽略包限定名，直接将该字段的类型名作为字段名
+> 首先，字段或方法 X 会隐藏该类型中更深层嵌套的其它项 X
+> 其次，若相同的嵌套层级上出现同名冲突，通常会产生一个错误。
+
+内嵌在 Fabric 的例子不多，一般用于类似 "子类" 的功能:
+
+```go
+type csp struct {
+	*sw.CSP
+}
+
+```
+
+## Concurrency
+
+##### Share by communicating
+
+Do not communicate by sharing memory; instead, share memory by communicating.
+
+#### Goroutines and Channels
+
+无缓存 channel 案例:
+```go
+c := make(chan int)  // 分配一个信道
+// 在 Go 程中启动排序。当它完成后，在信道上发送信号。
+go func() {
+    list.Sort()
+    c <- 1  // 发送信号，什么值无所谓。
+}()
+doSomethingForAWhile()
+<-c   // 等待排序结束，丢弃发来的值。
+```
+
+缓存 channel 案例:
+```go
+var sem = make(chan int, MaxOutstanding)
+
+func Serve(queue chan *Request) {
+    for req := range queue {
+        req := req // 为该 Go 程创建 req 的新实例。
+        sem <- 1
+        go func() {
+            process(req)
+            <-sem
+        }()
+    }
+}
+```
+
+启动固定数量 goroutine 案例:
+```go
+func handle(queue chan *Request) {
+    for r := range queue {
+        process(r)
+    }
+}
+
+func Serve(clientRequests chan *Request, quit chan bool) {
+    // 启动处理程序
+    for i := 0; i < MaxOutstanding; i++ {
+        go handle(clientRequests)
+    }
+    <-quit  // 等待通知退出。
+}
+```
+
+需要注意的是 for 循环变量共享问题。
+
+
+#### Parallelization
+
+有两种途径可实现，要么 在运行你的工作时将 GOMAXPROCS 环境变量设为你要使用的核心数， 要么导入 runtime 包并调用 runtime.GOMAXPROCS(NCPU)。 runtime.NumCPU() 的值可能很有用，它会返回当前机器的逻辑 CPU 核心数。
+
+##### A leaky buffer
+
+
+## Errors
+
+Fabric 案例：
+```go
+type IdemixIssuerPublicKeyImporterError struct {
+	Type     IdemixIIssuerPublicKeyImporterErrorType
+	ErrorMsg string
+	Cause    error
+}
+
+func (r *IdemixIssuerPublicKeyImporterError) Error() string {
+	if r.Cause != nil {
+		return fmt.Sprintf("%s: %s", r.ErrorMsg, r.Cause)
+	}
+
+	return r.ErrorMsg
+}
+```
+
+#### Panic  
+Fabric 案例：
+```go
+panic("BCCSP Internal error, failed initialization with GetDefaultOpts!")
+ ```
+#### Recover
+Fabric 案例：
+```go
+defer func() {
+		if r := recover(); r != nil {
+			res = nil
+			err = errors.Errorf("failure [%s]", r)
+		}
+	}()
+```
+

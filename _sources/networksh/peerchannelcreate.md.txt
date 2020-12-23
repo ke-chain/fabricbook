@@ -1,0 +1,43 @@
+
+peer channel create 创建通道
+=========
+
+## peer channel create/update 的用途？
+`peer channel create`创建通道并将创世块写入文件。
+## 在network.sh的使用场景是什么？
+`network.sh` 使用 `peer channel create` 生成通道和创世块 `./channel-artifacts/mychannel.block`。
+```sh
+
+# 导入了`config`目录下的配置文件`core.yaml`。
+# `core.yaml`：peer的日志配置、通用配置、账本配置等。
+FABRIC_CFG_PATH=${PWD}/config
+
+# 设置org1的admin身份的环境变量
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+# 创建应用通道
+peer channel create -o localhost:7050 -c mychannel --ordererTLSHostnameOverride orderer.example.com -f ./channel-artifacts/mychannel.tx --outputBlock ./channel-artifacts/mychannel.block --tls --cafile $PWD/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+```
+
+## peer channel create  命令的效果是什么？
+create 成功：产生了`./channel-artifacts/mychannel.block`文件。
+
+
+## peer channel create命令参数的含义是什么？
+update和create的参数基本一致。以下以create为例子：
+
+`-o localhost:7050` ：指定 `orderer` 的域名地址。
+`-c mychannel` ：指定 `channel` 的 `id`。
+`--ordererTLSHostnameOverride orderer.example.com` ：建立`tls` 连接时优先使用的 `hostname`。
+`-f ./channel-artifacts/mychannel.tx` :如下命令生成的通道配置文件。
+```sh
+configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mychannel.tx -channelID mychannel
+```
+`--outputBlock ./channel-artifacts/mychannel.block`：生成创世块的地址。
+`--tls` ： 使用 `tls` 通信
+`--cafile` `$PWD/.../tlsca.example.com-cert.pem`:`orderer` 节点的证书路径。
+
+

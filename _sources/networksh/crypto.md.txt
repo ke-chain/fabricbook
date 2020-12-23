@@ -1,0 +1,55 @@
+
+cryptogen生成证书
+======
+##  cryptogen的用途？
+ 是用来生成 Hyperledger Fabric 密钥材料的工具。
+ 它为测试提供了一种预配置网络的工具。通常它不应使用在生产环境中。
+
+
+## 在network.sh的使用场景是什么？
+network.sh中使用cryptogen生成组织org1，org2，orderer的证书
+```bash
+cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations"
+cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output="organizations"
+cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations"
+```
+
+## cryptogen generate 命令的效果是什么？
+我们以生成组织org1证书为例
+```bash
+cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations"
+```
+
+在"organizations"目录下
+![](../images/cryptoorg.png)
+证书放在msp目录中，TLS证书和秘钥在对应tls目录中
+
+这些生成的证书目录对应`docker-compose-test-net.yaml` 文件的证书配置。故不可移动，否则后续启动docker容器后无法找到对应证书。
+
+## cryptogen配置文件配置项的含义是什么？
+文件如下：
+```yaml
+PeerOrgs:
+  - Name: Org1
+    Domain: org1.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 2  #peer节点数  url：peer0.org1.example.com
+      SANS:
+        - localhost
+
+    Users:
+      Count: 3  #普通用户数
+```
+
+- `Name` 组织名字
+- `Domain` 组织根域名，对应目录：org1.example.com
+- `EnableNodeOUs` 是否支持nodejs
+- `Template` 模板,对应目录：peers
+    - `Count` peer节点数，对应目录：peers/peer0.org1.example.com
+    - `SANS` Subject Alternative Name,别名
+- `Users` 用户,对应目录：users
+    - `Count` 用户数,对应目录：users/User1@org33.example.com
+
+

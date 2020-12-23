@@ -1,0 +1,8 @@
+从优秀文章的角度看 Fabric
+===========================
+
+.. toctree::
+   :maxdepth: 1
+   :caption: 优秀文章与 Fabric
+
+   articles/effectivego

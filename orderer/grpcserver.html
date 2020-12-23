@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>获取 grpcServer : 远程通信 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>获取 grpcServer  : 远程通信</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/orderer/grpcserver.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="grpcserver">
+<span id="grpcserver"></span><h1>获取 grpcServer  : 远程通信<a class="headerlink" href="#grpcserver" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fabric-orderer-grpcserver">
+<span id="fabric-orderer-grpcserver"></span><h2>Fabric Orderer 中 grpcServer 用途是什么？<a class="headerlink" href="#fabric-orderer-grpcserver" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li>RPC 全称 (Remote Procedure Call)，远程过程调用，指的是一台计算机通过网络请求另一台计算机的上服务，从而不需要了解底层网络细节，RPC 是构建在已经存在的协议（TCP/IP，HTTP 等）之上的，RPC 采用的是客户端，服务器模式。</li>
+<li>gRPC 是云原生计算基金会（CNCF）项目，gRPC 一开始由 google 开发，是一款语言中立、平台中立的服务间通信框架，使用 gRPC 可以使得客户端像调用本地方法一样，调用远程主机提供的服务。可以在任何地方运行，它使客户端和服务器应用程序能够透明地进行通信，并使构建连接系统变得更加容易。</li>
+</ol>
+<p>Orderer 只有 2 个 GRPC 接口：</p>
+<ul class="simple">
+<li>Broadcast：用来接收客户端提交的待排序交易。</li>
+<li>Deliver：客户端（包括 Peer 节点）用来从 Orderer 节点获取已经达成一致的区块。</li>
+</ul>
+</div>
+<div class="section" id="grpcserver">
+<span id="id1"></span><h2>grpcServer 底层调用了什么？<a class="headerlink" href="#grpcserver" title="Permalink to this headline">¶</a></h2>
+<p>gprc 建立服务器有三个步骤</p>
+<ol class="simple">
+<li>创建 server</li>
+<li>server 的注册</li>
+<li>调用 Serve 监听端口并处理请求</li>
+</ol>
+<div class="section" id="server">
+<span id="server"></span><h3>创建 server 到底创建了什么<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h3>
+<p>server 最终的创建了一个 Server 结构体，比较重要的无非就是三个 map 表分别用来存放多个 listener 、connection 和 service。其他字段都是为了实现协议描述或者并发控制的功能。我们重点关注 <code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">map[string]*service</span></code>。
+service 中主要包含了 MethodDesc 和 StreamDesc 这两个 map 分别存储了 方法 和 流。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">initializeGrpcServer</span><span class="p">(</span><span class="nx">conf</span> <span class="o">*</span><span class="nx">localconfig</span><span class="p">.</span><span class="nx">TopLevel</span><span class="p">,</span> <span class="nx">serverConfig</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">)</span> <span class="o">*</span><span class="nx">comm</span><span class="p">.</span><span class="nx">GRPCServer</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">grpcServer</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span><span class="nx">lis</span><span class="p">,</span> <span class="nx">serverConfig</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nx">NewGRPCServerFromListener</span><span class="p">(</span><span class="nx">listener</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span><span class="p">,</span> <span class="nx">serverConfig</span> <span class="nx">ServerConfig</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">GRPCServer</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">grpcServer</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">GRPCServer</span><span class="p">{</span>
+        <span class="nx">address</span><span class="p">:</span>  <span class="nx">listener</span><span class="p">.</span><span class="nx">Addr</span><span class="p">().</span><span class="nx">String</span><span class="p">(),</span>
+        <span class="nx">listener</span><span class="p">:</span> <span class="nx">listener</span><span class="p">,</span>
+        <span class="nx">lock</span><span class="p">:</span>     <span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span><span class="p">{},</span>
+    <span class="p">}</span>
+    <span class="nx">grpcServer</span><span class="p">.</span><span class="nx">server</span> <span class="p">=</span> <span class="nx">grpc</span><span class="p">.</span><span class="nx">NewServer</span><span class="p">(</span><span class="nx">serverOpts</span><span class="o">...</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">NewServer</span><span class="p">(</span><span class="nx">opt</span> <span class="o">...</span><span class="nx">ServerOption</span><span class="p">)</span> <span class="o">*</span><span class="nx">Server</span> <span class="p">{</span>
+    <span class="nx">s</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Server</span><span class="p">{</span>
+        <span class="nx">lis</span><span class="p">:</span>    <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span><span class="p">]</span><span class="kt">bool</span><span class="p">),</span>
+        <span class="nx">opts</span><span class="p">:</span>   <span class="nx">opts</span><span class="p">,</span>
+        <span class="nx">conns</span><span class="p">:</span>  <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="nx">transport</span><span class="p">.</span><span class="nx">ServerTransport</span><span class="p">]</span><span class="kt">bool</span><span class="p">),</span>
+        <span class="nx">m</span><span class="p">:</span>      <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">service</span><span class="p">),</span>
+        <span class="nx">quit</span><span class="p">:</span>   <span class="nx">grpcsync</span><span class="p">.</span><span class="nx">NewEvent</span><span class="p">(),</span>
+        <span class="nx">done</span><span class="p">:</span>   <span class="nx">grpcsync</span><span class="p">.</span><span class="nx">NewEvent</span><span class="p">(),</span>
+        <span class="nx">czData</span><span class="p">:</span> <span class="nb">new</span><span class="p">(</span><span class="nx">channelzData</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Server</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">opts</span> <span class="nx">serverOptions</span>
+
+    <span class="nx">mu</span>     <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span> <span class="c1">// guards following</span>
+    <span class="nx">lis</span>    <span class="kd">map</span><span class="p">[</span><span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span><span class="p">]</span><span class="kt">bool</span>
+    <span class="nx">conns</span>  <span class="kd">map</span><span class="p">[</span><span class="nx">transport</span><span class="p">.</span><span class="nx">ServerTransport</span><span class="p">]</span><span class="kt">bool</span>
+    <span class="nx">serve</span>  <span class="kt">bool</span>
+    <span class="nx">drain</span>  <span class="kt">bool</span>
+    <span class="nx">cv</span>     <span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Cond</span>          <span class="c1">// signaled when connections close for GracefulStop</span>
+    <span class="nx">m</span>      <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">service</span> <span class="c1">// service name -&gt; service info</span>
+    <span class="nx">events</span> <span class="nx">trace</span><span class="p">.</span><span class="nx">EventLog</span>
+
+    <span class="nx">quit</span>               <span class="o">*</span><span class="nx">grpcsync</span><span class="p">.</span><span class="nx">Event</span>
+    <span class="nx">done</span>               <span class="o">*</span><span class="nx">grpcsync</span><span class="p">.</span><span class="nx">Event</span>
+    <span class="nx">channelzRemoveOnce</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span>
+    <span class="nx">serveWG</span>            <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span> <span class="c1">// counts active Serve goroutines for GracefulStop</span>
+
+    <span class="nx">channelzID</span> <span class="kt">int64</span> <span class="c1">// channelz unique identification number</span>
+    <span class="nx">czData</span>     <span class="o">*</span><span class="nx">channelzData</span>
+<span class="p">}</span>
+
+
+<span class="kd">type</span> <span class="nx">service</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">server</span> <span class="kd">interface</span><span class="p">{}</span> <span class="c1">// the server for service methods</span>
+    <span class="nx">md</span>     <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">MethodDesc</span>
+    <span class="nx">sd</span>     <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">StreamDesc</span>
+    <span class="nx">mdata</span>  <span class="kd">interface</span><span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="server">
+<span id="id2"></span><h3>server 的注册到底做了什么？<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h3>
+<p>主要是把 _AtomicBroadcast_serviceDesc 中的 Streams 和 Methods 注入到 server 的 service map 中。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">Main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">ab</span><span class="p">.</span><span class="nx">RegisterAtomicBroadcastServer</span><span class="p">(</span><span class="nx">grpcServer</span><span class="p">.</span><span class="nx">Server</span><span class="p">(),</span> <span class="nx">server</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">RegisterAtomicBroadcastServer</span><span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">Server</span><span class="p">,</span> <span class="nx">srv</span> <span class="nx">AtomicBroadcastServer</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">RegisterService</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">_AtomicBroadcast_serviceDesc</span><span class="p">,</span> <span class="nx">srv</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">_AtomicBroadcast_serviceDesc</span> <span class="p">=</span> <span class="nx">grpc</span><span class="p">.</span><span class="nx">ServiceDesc</span><span class="p">{</span>
+    <span class="nx">ServiceName</span><span class="p">:</span> <span class="s">&quot;orderer.AtomicBroadcast&quot;</span><span class="p">,</span>
+    <span class="nx">HandlerType</span><span class="p">:</span> <span class="p">(</span><span class="o">*</span><span class="nx">AtomicBroadcastServer</span><span class="p">)(</span><span class="kc">nil</span><span class="p">),</span>
+    <span class="nx">Methods</span><span class="p">:</span>     <span class="p">[]</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">MethodDesc</span><span class="p">{},</span>
+    <span class="nx">Streams</span><span class="p">:</span> <span class="p">[]</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">StreamDesc</span><span class="p">{</span>
+        <span class="p">{</span>
+            <span class="nx">StreamName</span><span class="p">:</span>    <span class="s">&quot;Broadcast&quot;</span><span class="p">,</span>
+            <span class="nx">Handler</span><span class="p">:</span>       <span class="nx">_AtomicBroadcast_Broadcast_Handler</span><span class="p">,</span>
+            <span class="nx">ServerStreams</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+            <span class="nx">ClientStreams</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nx">StreamName</span><span class="p">:</span>    <span class="s">&quot;Deliver&quot;</span><span class="p">,</span>
+            <span class="nx">Handler</span><span class="p">:</span>       <span class="nx">_AtomicBroadcast_Deliver_Handler</span><span class="p">,</span>
+            <span class="nx">ServerStreams</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+            <span class="nx">ClientStreams</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="nx">Metadata</span><span class="p">:</span> <span class="s">&quot;orderer/ab.proto&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">RegisterService</span><span class="p">(</span><span class="nx">sd</span> <span class="o">*</span><span class="nx">ServiceDesc</span><span class="p">,</span> <span class="nx">ss</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">sd</span><span class="p">,</span> <span class="nx">ss</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">register</span><span class="p">(</span><span class="nx">sd</span> <span class="o">*</span><span class="nx">ServiceDesc</span><span class="p">,</span> <span class="nx">ss</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">srv</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">service</span><span class="p">{</span>
+        <span class="nx">server</span><span class="p">:</span> <span class="nx">ss</span><span class="p">,</span>
+        <span class="nx">md</span><span class="p">:</span>     <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">MethodDesc</span><span class="p">),</span>
+        <span class="nx">sd</span><span class="p">:</span>     <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">StreamDesc</span><span class="p">),</span>
+        <span class="nx">mdata</span><span class="p">:</span>  <span class="nx">sd</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">sd</span><span class="p">.</span><span class="nx">Methods</span> <span class="p">{</span>
+        <span class="nx">d</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">sd</span><span class="p">.</span><span class="nx">Methods</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+        <span class="nx">srv</span><span class="p">.</span><span class="nx">md</span><span class="p">[</span><span class="nx">d</span><span class="p">.</span><span class="nx">MethodName</span><span class="p">]</span> <span class="p">=</span> <span class="nx">d</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">sd</span><span class="p">.</span><span class="nx">Streams</span> <span class="p">{</span>
+        <span class="nx">d</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">sd</span><span class="p">.</span><span class="nx">Streams</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+        <span class="nx">srv</span><span class="p">.</span><span class="nx">sd</span><span class="p">[</span><span class="nx">d</span><span class="p">.</span><span class="nx">StreamName</span><span class="p">]</span> <span class="p">=</span> <span class="nx">d</span>
+    <span class="p">}</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">m</span><span class="p">[</span><span class="nx">sd</span><span class="p">.</span><span class="nx">ServiceName</span><span class="p">]</span> <span class="p">=</span> <span class="nx">srv</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>需要注意的是 <code class="docutils literal notranslate"><span class="pre">s.m[sd.ServiceName]</span> <span class="pre">=</span> <span class="pre">srv</span></code> ，这行注入 srv 的代码对应处理请求的取出 srv 的操作。</p>
+</div>
+<div class="section" id="serve">
+<span id="serve"></span><h3>调用 Serve 监听端口并处理请求是如何完成的？<a class="headerlink" href="#serve" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li>server 通过死循环的方式在某一个端口实现监听，然后 client 对这个端口发起连接请求，握手成功后建立连接。</li>
+<li>使用 handleRawConn() 处理 client 发送过来的请求数据。</li>
+<li>根据请求的服务名获取对应 MethodDesc 或 StreamDesc。</li>
+<li>调用其 handler 进行处理。</li>
+<li>回写响应数据。</li>
+</ol>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span>  <span class="c1">// 启动 server </span>
+<span class="kd">func</span> <span class="nx">Main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">grpcServer</span><span class="p">.</span><span class="nx">Start</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+  <span class="c1">// 启动 server </span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">gServer</span> <span class="o">*</span><span class="nx">GRPCServer</span><span class="p">)</span> <span class="nx">Start</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="k">return</span> <span class="nx">gServer</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">Serve</span><span class="p">(</span><span class="nx">gServer</span><span class="p">.</span><span class="nx">listener</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">Serve</span><span class="p">(</span><span class="nx">lis</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="c1">// 1. server 通过死循环的方式在某一个端口实现监听，然后 client 对这个端口发起连接请求，握手成功后建立连接。</span>
+    <span class="k">for</span> <span class="p">{</span>
+        <span class="nx">rawConn</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">lis</span><span class="p">.</span><span class="nx">Accept</span><span class="p">()</span>
+        <span class="o">...</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">serveWG</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">// 2. 使用 handleRawConn() 处理 client 发送过来的请求数据。</span>
+            <span class="nx">s</span><span class="p">.</span><span class="nx">handleRawConn</span><span class="p">(</span><span class="nx">rawConn</span><span class="p">)</span>
+            <span class="nx">s</span><span class="p">.</span><span class="nx">serveWG</span><span class="p">.</span><span class="nx">Done</span><span class="p">()</span>
+        <span class="p">}()</span>
+        <span class="p">}</span>
+<span class="p">}</span>    
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">handleRawConn</span><span class="p">(</span><span class="nx">rawConn</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 使用 http2 </span>
+    <span class="nx">st</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">newHTTP2Transport</span><span class="p">(</span><span class="nx">conn</span><span class="p">,</span> <span class="nx">authInfo</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">serveStreams</span><span class="p">(</span><span class="nx">st</span><span class="p">)</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">removeConn</span><span class="p">(</span><span class="nx">st</span><span class="p">)</span>
+    <span class="p">}()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">serveStreams</span><span class="p">(</span><span class="nx">st</span> <span class="nx">transport</span><span class="p">.</span><span class="nx">ServerTransport</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">defer</span> <span class="nx">st</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+    <span class="kd">var</span> <span class="nx">wg</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span>
+    <span class="nx">st</span><span class="p">.</span><span class="nx">HandleStreams</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">stream</span> <span class="o">*</span><span class="nx">transport</span><span class="p">.</span><span class="nx">Stream</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">wg</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nx">Done</span><span class="p">()</span>
+            <span class="nx">s</span><span class="p">.</span><span class="nx">handleStream</span><span class="p">(</span><span class="nx">st</span><span class="p">,</span> <span class="nx">stream</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">traceInfo</span><span class="p">(</span><span class="nx">st</span><span class="p">,</span> <span class="nx">stream</span><span class="p">))</span>
+        <span class="p">}()</span>
+    <span class="p">},</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">method</span> <span class="kt">string</span><span class="p">)</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">!</span><span class="nx">EnableTracing</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">ctx</span>
+        <span class="p">}</span>
+        <span class="nx">tr</span> <span class="o">:=</span> <span class="nx">trace</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">&quot;grpc.Recv.&quot;</span><span class="o">+</span><span class="nx">methodFamily</span><span class="p">(</span><span class="nx">method</span><span class="p">),</span> <span class="nx">method</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nx">trace</span><span class="p">.</span><span class="nx">NewContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">tr</span><span class="p">)</span>
+    <span class="p">})</span>
+    <span class="nx">wg</span><span class="p">.</span><span class="nx">Wait</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">handleStream</span><span class="p">(</span><span class="nx">t</span> <span class="nx">transport</span><span class="p">.</span><span class="nx">ServerTransport</span><span class="p">,</span> <span class="nx">stream</span> <span class="o">*</span><span class="nx">transport</span><span class="p">.</span><span class="nx">Stream</span><span class="p">,</span> <span class="nx">trInfo</span> <span class="o">*</span><span class="nx">traceInfo</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">service</span> <span class="o">:=</span> <span class="nx">sm</span><span class="p">[:</span><span class="nx">pos</span><span class="p">]</span>
+    <span class="nx">method</span> <span class="o">:=</span> <span class="nx">sm</span><span class="p">[</span><span class="nx">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c1">// 3. 根据请求的服务名获取对应 MethodDesc 或 StreamDesc。</span>
+    <span class="nx">srv</span><span class="p">,</span> <span class="nx">knownService</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">m</span><span class="p">[</span><span class="nx">service</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nx">knownService</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">md</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nx">md</span><span class="p">[</span><span class="nx">method</span><span class="p">];</span> <span class="nx">ok</span> <span class="p">{</span>
+            <span class="nx">s</span><span class="p">.</span><span class="nx">processUnaryRPC</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">stream</span><span class="p">,</span> <span class="nx">srv</span><span class="p">,</span> <span class="nx">md</span><span class="p">,</span> <span class="nx">trInfo</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nx">sd</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nx">sd</span><span class="p">[</span><span class="nx">method</span><span class="p">];</span> <span class="nx">ok</span> <span class="p">{</span>
+            <span class="nx">s</span><span class="p">.</span><span class="nx">processStreamingRPC</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">stream</span><span class="p">,</span> <span class="nx">srv</span><span class="p">,</span> <span class="nx">sd</span><span class="p">,</span> <span class="nx">trInfo</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+    <span class="p">}</span>   
+    <span class="o">...</span>
+
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">processUnaryRPC</span><span class="p">(</span><span class="nx">t</span> <span class="nx">transport</span><span class="p">.</span><span class="nx">ServerTransport</span><span class="p">,</span> <span class="nx">stream</span> <span class="o">*</span><span class="nx">transport</span><span class="p">.</span><span class="nx">Stream</span><span class="p">,</span> <span class="nx">srv</span> <span class="o">*</span><span class="nx">service</span><span class="p">,</span> <span class="nx">md</span> <span class="o">*</span><span class="nx">MethodDesc</span><span class="p">,</span> <span class="nx">trInfo</span> <span class="o">*</span><span class="nx">traceInfo</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+     <span class="c1">// 4. 调用其 handler 进行处理。</span>
+    <span class="nx">reply</span><span class="p">,</span> <span class="nx">appErr</span> <span class="o">:=</span> <span class="nx">md</span><span class="p">.</span><span class="nx">Handler</span><span class="p">(</span><span class="nx">srv</span><span class="p">.</span><span class="nx">server</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">,</span> <span class="nx">df</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">opts</span><span class="p">.</span><span class="nx">unaryInt</span><span class="p">)</span>
+    <span class="o">...</span>
+     <span class="c1">// 5. 回写响应数据。</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">sendResponse</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">stream</span><span class="p">,</span> <span class="nx">reply</span><span class="p">,</span> <span class="nx">cp</span><span class="p">,</span> <span class="nx">opts</span><span class="p">,</span> <span class="nx">comp</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nx">sendResponse</span><span class="p">(</span><span class="nx">t</span> <span class="nx">transport</span><span class="p">.</span><span class="nx">ServerTransport</span><span class="p">,</span> <span class="nx">stream</span> <span class="o">*</span><span class="nx">transport</span><span class="p">.</span><span class="nx">Stream</span><span class="p">,</span> <span class="nx">msg</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">cp</span> <span class="nx">Compressor</span><span class="p">,</span> <span class="nx">opts</span> <span class="o">*</span><span class="nx">transport</span><span class="p">.</span><span class="nx">Options</span><span class="p">,</span> <span class="nx">comp</span> <span class="nx">encoding</span><span class="p">.</span><span class="nx">Compressor</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">err</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Write</span><span class="p">(</span><span class="nx">stream</span><span class="p">,</span> <span class="nx">hdr</span><span class="p">,</span> <span class="nx">payload</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="gprc-server">
+<span id="gprc-server"></span><h2>重造 gprc server<a class="headerlink" href="#gprc-server" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

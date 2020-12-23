@@ -1,0 +1,107 @@
+# 加载orderer.yaml文件
+
+
+## 今天做什么？
+这是重造轮子的第一天，要新建一个工程。完成Fabric创建镜像到加载orderer.yaml的过程。
+
+
+## 做完的效果是什么？
+在容器中执行orderer，目录下会生成foo.log文件
+```sh
+# 生成 orderer执行文件，文件在目录 $PWD/build/bin
+$ make orderer
+
+# 启动镜像fabric-orderer:2.2，并将新生成的可执行文件覆盖原文件
+$ docker run -v $PWD/build/bin:/usr/local/bin  -it --rm hyperledger/fabric-orderer:2.2 /bin/sh  
+
+# 在容器中执行 orderer
+$ orderer
+
+# 查看目录下载是否存在 foo.log.若存在则表示成功。
+$ ls foo.log
+foo.log
+
+# 打印orderer 版本信息
+$ orderer version
+orderer:
+ Version: 
+ Commit SHA: 5406341
+ Go version: go1.14.12
+ OS/Arch: linux/amd64
+
+```
+
+## 代码都做了什么？
+
+#### Makefile做了什么？
+运行make orderer的时候，调用go build 生成build/bin/orderer执行文件。
+```makefile
+...
+.PHONY: $(RELEASE_EXES)
+$(RELEASE_EXES): %:  clean $(BUILD_DIR)/bin/%
+	
+
+$(BUILD_DIR)/bin/%: GO_LDFLAGS = $(METADATA_VAR:%=-X $(PKGNAME)/common/metadata.%)
+$(BUILD_DIR)/bin/%:
+	@echo "Building $@"
+	@mkdir -p $(@D)
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(abspath $(@D)) go build -o ./build/bin/orderer -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" $(pkgmap.$(@F))
+	@touch $@
+...
+```
+
+#### go代码做了什么？
+
+go代码做的事情:
+1. 解析用户命令，如果命令是version，则打印版本信息后退出程序。
+2. 加载配置文件，将配置信息写入到foo.log文件中。
+
+主要逻辑在orderer/common/server/main.go文件中，代码如下：
+```go
+func Main() {
+    fullCmd := kingpin.MustParse(app.Parse(os.Args[1:])) // 解析用户命令行
+
+	// "version" command
+	if fullCmd == version.FullCommand() {
+		fmt.Println(metadata.GetVersionInfo())
+		return
+	}
+
+	conf, err := localconfig.Load() //  记载orderer配置文件
+	if err != nil {
+		logger.Error("failed to parse config: ", nil)
+		os.Exit(1)
+	}
+	logger.Info(spew.Sdump(conf)) // log 记录所有配置信息
+	logger.Sync()                 // 输出 log 缓存
+}
+```
+
+localconfig.Load()初始化Viper组件，Viper组件会依次从FABRIC_CFG_PATH、当前目录、开发配置目录(sampleconfig)、默认配置路径(etc/hyperleger/fabric)查找orderer.yaml文件。
+orderer/common/localconfig/config.go
+
+```go
+
+func (c *configCache) load() (*TopLevel, error) {
+	var uconf TopLevel
+
+	config := viper.New() 
+	coreconfig.InitViper(config, "orderer") // 初始化viper组件
+	config.SetEnvPrefix(Prefix) 
+	config.AutomaticEnv()
+	replacer := strings.NewReplacer(".", "_")
+	config.SetEnvKeyReplacer(replacer)
+
+	if err := config.ReadInConfig(); err != nil {  // 查找orderer.yaml
+		return nil, fmt.Errorf("Error reading configuration: %s", err)
+	}
+}
+```
+
+## 本文源码地址
+https://github.com/ke-chain/fabric/tree/v1.0
+
+## 今天学到了什么？
+
+- 使用 makefile 编译工程
+- orderer.yaml查找顺序依次从FABRIC_CFG_PATH、当前目录、开发配置目录(sampleconfig)、默认配置路径(etc/hyperleger/fabric)

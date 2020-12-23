@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>peer channel create 创建通道 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="peer channel join 加入通道" href="peerchanneljoin.html"/>
+        <link rel="prev" title="docker-compose 启动peers and orderering service" href="dockercompose.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="prereqs.html">Prerequisites 安装环境和测试网络</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crypto.html">cryptogen生成证书</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configtxgen.html">configtxgen创建通道配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dockercompose.html">docker-compose 启动peers and orderering service</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">peer channel create 创建通道</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#peer-channel-create-update">peer channel create/update 的用途？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-sh">在network.sh的使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peer-channel-create">peer channel create  命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peer-channel-create">peer channel create命令参数的含义是什么？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincodelife.html">peer lifecycle chaincode 创建链码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincode.html">peer chaincode 运行链码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>peer channel create 创建通道</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/peerchannelcreate.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="peer-channel-create">
+<span id="peer-channel-create"></span><h1>peer channel create 创建通道<a class="headerlink" href="#peer-channel-create" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="peer-channel-create-update">
+<span id="peer-channel-create-update"></span><h2>peer channel create/update 的用途？<a class="headerlink" href="#peer-channel-create-update" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">channel</span> <span class="pre">create</span></code>创建通道并将创世块写入文件。</p>
+</div>
+<div class="section" id="network-sh">
+<span id="network-sh"></span><h2>在network.sh的使用场景是什么？<a class="headerlink" href="#network-sh" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">network.sh</span></code> 使用 <code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">channel</span> <span class="pre">create</span></code> 生成通道和创世块 <code class="docutils literal notranslate"><span class="pre">./channel-artifacts/mychannel.block</span></code>。</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># 导入了`config`目录下的配置文件`core.yaml`。</span>
+<span class="c1"># `core.yaml`：peer的日志配置、通用配置、账本配置等。</span>
+<span class="nv">FABRIC_CFG_PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/config
+
+<span class="c1"># 设置org1的admin身份的环境变量</span>
+<span class="nb">export</span> <span class="nv">CORE_PEER_LOCALMSPID</span><span class="o">=</span><span class="s2">&quot;Org1MSP&quot;</span>
+<span class="nb">export</span> <span class="nv">CORE_PEER_TLS_ROOTCERT_FILE</span><span class="o">=</span><span class="nv">$PEER0_ORG1_CA</span>
+<span class="nb">export</span> <span class="nv">CORE_PEER_MSPCONFIGPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+<span class="nb">export</span> <span class="nv">CORE_PEER_ADDRESS</span><span class="o">=</span>localhost:7051
+
+<span class="c1"># 创建应用通道</span>
+peer channel create -o localhost:7050 -c mychannel --ordererTLSHostnameOverride orderer.example.com -f ./channel-artifacts/mychannel.tx --outputBlock ./channel-artifacts/mychannel.block --tls --cafile <span class="nv">$PWD</span>/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+</pre></div>
+</div>
+</div>
+<div class="section" id="peer-channel-create">
+<span id="id1"></span><h2>peer channel create  命令的效果是什么？<a class="headerlink" href="#peer-channel-create" title="Permalink to this headline">¶</a></h2>
+<p>create 成功：产生了<code class="docutils literal notranslate"><span class="pre">./channel-artifacts/mychannel.block</span></code>文件。</p>
+</div>
+<div class="section" id="peer-channel-create">
+<span id="id2"></span><h2>peer channel create命令参数的含义是什么？<a class="headerlink" href="#peer-channel-create" title="Permalink to this headline">¶</a></h2>
+<p>update和create的参数基本一致。以下以create为例子：</p>
+<p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">localhost:7050</span></code> ：指定 <code class="docutils literal notranslate"><span class="pre">orderer</span></code> 的域名地址。
+<code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">mychannel</span></code> ：指定 <code class="docutils literal notranslate"><span class="pre">channel</span></code> 的 <code class="docutils literal notranslate"><span class="pre">id</span></code>。
+<code class="docutils literal notranslate"><span class="pre">--ordererTLSHostnameOverride</span> <span class="pre">orderer.example.com</span></code> ：建立<code class="docutils literal notranslate"><span class="pre">tls</span></code> 连接时优先使用的 <code class="docutils literal notranslate"><span class="pre">hostname</span></code>。
+<code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">./channel-artifacts/mychannel.tx</span></code> :如下命令生成的通道配置文件。</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mychannel.tx -channelID mychannel
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--outputBlock</span> <span class="pre">./channel-artifacts/mychannel.block</span></code>：生成创世块的地址。
+<code class="docutils literal notranslate"><span class="pre">--tls</span></code> ： 使用 <code class="docutils literal notranslate"><span class="pre">tls</span></code> 通信
+<code class="docutils literal notranslate"><span class="pre">--cafile</span></code> <code class="docutils literal notranslate"><span class="pre">$PWD/.../tlsca.example.com-cert.pem</span></code>:<code class="docutils literal notranslate"><span class="pre">orderer</span></code> 节点的证书路径。</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="peerchanneljoin.html" class="btn btn-neutral float-right" title="peer channel join 加入通道" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dockercompose.html" class="btn btn-neutral" title="docker-compose 启动peers and orderering service" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

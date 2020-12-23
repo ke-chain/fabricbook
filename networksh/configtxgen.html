@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>configtxgen创建通道配置 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="docker-compose 启动peers and orderering service" href="dockercompose.html"/>
+        <link rel="prev" title="cryptogen生成证书" href="crypto.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="prereqs.html">Prerequisites 安装环境和测试网络</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crypto.html">cryptogen生成证书</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">configtxgen创建通道配置</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configtxgen">configtxgen的用途？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#"></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-sh">在network.sh的使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configtxgen">configtxgen 命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#">术语解释</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configtxgen-outputblock">configtxgen -outputBlock 配置项的含义是什么？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dockercompose.html">docker-compose 启动peers and orderering service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchannelcreate.html">peer channel create 创建通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincodelife.html">peer lifecycle chaincode 创建链码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincode.html">peer chaincode 运行链码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>configtxgen创建通道配置</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/configtxgen.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configtxgen">
+<span id="configtxgen"></span><h1>configtxgen创建通道配置<a class="headerlink" href="#configtxgen" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="configtxgen">
+<span id="id1"></span><h2>configtxgen的用途？<a class="headerlink" href="#configtxgen" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">configtxgen</span></code>  = configuration + transaction +generate （配置交易生成器）
+<code class="docutils literal notranslate"><span class="pre">configtxgen</span></code> 命令允许用户创建和查看通道配置相关构件。
+所生成的构件取决于 <code class="docutils literal notranslate"><span class="pre">configtx.yaml</span></code> 的内容。</p>
+</div>
+<div class="section" id="">
+<span id="id2"></span><h2><a class="headerlink" href="#" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="network-sh">
+<span id="network-sh"></span><h2>在network.sh的使用场景是什么？<a class="headerlink" href="#network-sh" title="Permalink to this headline">¶</a></h2>
+<p>network.sh中使用configtxgen生成系统通道创世块，配置交易文件，锚节点Org1,Org1更新交易文件</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># 生成系统通道创世块 genesis.block</span>
+configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block
+
+<span class="c1"># 生成通道配置交易文件 mychannel.tx </span>
+<span class="c1"># mychannel.tx 文件用于后续 peer channel create 创建通道</span>
+configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mychannel.tx -channelID mychannel
+
+<span class="c1"># 生成锚节点Org1,Org1配置更新文件 Org1MSPanchors.tx ，Org2MSPanchors.tx。</span>
+<span class="c1"># Org1MSPanchors.tx ，Org2MSPanchors.tx两个文件会用于后续 peer channel update 更新通道。</span>
+configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID mychannel -asOrg Org1MSP
+configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org2MSPanchors.tx -channelID mychannel -asOrg Org2MSP
+</pre></div>
+</div>
+</div>
+<div class="section" id="configtxgen">
+<span id="id3"></span><h2>configtxgen 命令的效果是什么？<a class="headerlink" href="#configtxgen" title="Permalink to this headline">¶</a></h2>
+<p>以下命令使用配置文件<code class="docutils literal notranslate"><span class="pre">./configtx/configtx.yaml</span></code>的轮廓<code class="docutils literal notranslate"><span class="pre">TwoOrgsOrdererGenesis</span></code>在目录<code class="docutils literal notranslate"><span class="pre">./system-genesis-block</span></code>下生产创世块<code class="docutils literal notranslate"><span class="pre">genesis.block</span></code></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block
+</pre></div>
+</div>
+</div>
+<div class="section" id="">
+<span id="id4"></span><h2>术语解释<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="policy">
+<span id="policy"></span><h3>什么是Policy（策略）？<a class="headerlink" href="#policy" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>官网原文：Policies test whether the signer or signers of some data meet some condition required for those signatures to be considered ‘valid’. This is useful for determining that the correct parties have agreed to a transaction, or change.</div></blockquote>
+<p>策略测试签名者的数据是否符合所需签名的条件。用于判断指定的成员已经同意了交易或者修改。</p>
+</div>
+<div class="section" id="implicitmeta">
+<span id="implicitmeta"></span><h3>什么是ImplicitMeta(隐式策略)？<a class="headerlink" href="#implicitmeta" title="Permalink to this headline">¶</a></h3>
+<p>隐式策略的语法: <code class="docutils literal notranslate"><span class="pre">&lt;ALL|ANY|MAJORITY&gt;</span> <span class="pre">&lt;sub_policy&gt;</span></code>
+<code class="docutils literal notranslate"><span class="pre">ALL|ANY|MAJORITY</span></code>代表<code class="docutils literal notranslate"><span class="pre">全部子策略同意|任意一个子策略同意|大多数子策略同意</span></code>。
+<img alt="" src="../_images/Implicitpolicy.png" /></p>
+<p>上图所示，子策略<code class="docutils literal notranslate"><span class="pre">同意</span></code>的方式是<code class="docutils literal notranslate"><span class="pre">签名</span></code>，提交给该通道的通道更新请求包含来自Org1，Org2和Org3的签名，满足每个组织的签名策略。因此，该请求满足Channel/Application/Admins策略。实际上只需要org1和org2就已经完成了大多数子策略同意。</p>
+</div>
+<div class="section" id="capabilities">
+<span id="capabilities"></span><h3>什么是Capabilities(能力)？<a class="headerlink" href="#capabilities" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>官网原文：These capabilities, which are defined in the configuration of each channel, ensure determinism by defining a level at which behaviors produce consistent results. As you’ll see, these capabilities have versions which are closely related to node binary versions. Capabilities enable nodes running at different version levels to behave in a compatible and consistent way given the channel configuration at a specific block height.</div></blockquote>
+<p>能力定义在管道的配置中，用于确保该同个管道的行为是一致确定的。正如你看到的，这些能力的版本和二进制文件的版本是相似的。能力使得不同版本节点可以在一个指定的高度和配置兼容运行并保证结果一致性。</p>
+</div>
+<div class="section" id="consortiums">
+<span id="consortiums"></span><h3>什么是Consortiums(联盟)？<a class="headerlink" href="#consortiums" title="Permalink to this headline">¶</a></h3>
+<p>联盟内所有组织拥有相同的应用通道创建策略，且创建新的应用通道必须包含合法的联盟名称。</p>
+</div>
+</div>
+<div class="section" id="configtxgen-outputblock">
+<span id="configtxgen-outputblock"></span><h2>configtxgen -outputBlock 配置项的含义是什么？<a class="headerlink" href="#configtxgen-outputblock" title="Permalink to this headline">¶</a></h2>
+<p>TwoOrgsOrdererGenesis 配置信息如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span>    <span class="l l-Scalar l-Scalar-Plain">TwoOrgsOrdererGenesis</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">&lt;&lt;</span><span class="p p-Indicator">:</span> <span class="nv">*ChannelDefaults</span> <span class="c1"># 通道 </span>
+        <span class="l l-Scalar l-Scalar-Plain">Orderer</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">&lt;&lt;</span><span class="p p-Indicator">:</span> <span class="nv">*OrdererDefaults</span> <span class="c1"># 排序节点</span>
+            <span class="l l-Scalar l-Scalar-Plain">Organizations</span><span class="p p-Indicator">:</span>
+                <span class="p p-Indicator">-</span> <span class="nv">*OrdererOrg</span> <span class="c1"># 排序节点足迹</span>
+            <span class="l l-Scalar l-Scalar-Plain">Capabilities</span><span class="p p-Indicator">:</span>
+                <span class="l l-Scalar l-Scalar-Plain">&lt;&lt;</span><span class="p p-Indicator">:</span> <span class="nv">*OrdererCapabilities</span> <span class="c1"># 排序节点能力</span>
+        <span class="l l-Scalar l-Scalar-Plain">Consortiums</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">SampleConsortium</span><span class="p p-Indicator">:</span>
+                <span class="l l-Scalar l-Scalar-Plain">Organizations</span><span class="p p-Indicator">:</span>
+                    <span class="p p-Indicator">-</span> <span class="nv">*Org1</span> <span class="c1"># 组织1</span>
+                    <span class="p p-Indicator">-</span> <span class="nv">*Org2</span> <span class="c1"># 组织2 </span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ChannelDefaults</span></code>的详情如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">Channel</span><span class="p p-Indicator">:</span> <span class="nl">&amp;ChannelDefaults</span>
+    <span class="l l-Scalar l-Scalar-Plain">Policies</span><span class="p p-Indicator">:</span>
+        <span class="c1"># 决定谁能调用&#39;Deliver&#39; API</span>
+        <span class="l l-Scalar l-Scalar-Plain">Readers</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;ANY</span><span class="nv"> </span><span class="s">Readers&quot;</span>
+        <span class="c1"># 决定谁能调用&#39;Broadcast&#39; API</span>
+        <span class="l l-Scalar l-Scalar-Plain">Writers</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;ANY</span><span class="nv"> </span><span class="s">Writers&quot;</span>
+        <span class="c1"># 默认值，决定谁能修改配置中的元素</span>
+        <span class="l l-Scalar l-Scalar-Plain">Admins</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;MAJORITY</span><span class="nv"> </span><span class="s">Admins&quot;</span>
+
+    
+    <span class="c1"># 能力：不同版本的fabric有不同的世界树状态。如果缺少对应能力，则会删除对应交易直到升级到对应版本。</span>
+    <span class="l l-Scalar l-Scalar-Plain">Capabilities</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">&lt;&lt;</span><span class="p p-Indicator">:</span> <span class="nv">*ChannelCapabilities</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">OrdererDefaults</span></code>的详情如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">Orderer</span><span class="p p-Indicator">:</span> <span class="nl">&amp;OrdererDefaults</span>
+
+    <span class="c1"># 选择Raft作为共识类型</span>
+    <span class="l l-Scalar l-Scalar-Plain">OrdererType</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">etcdraft</span>
+    <span class="c1"># Raft 排序服务由可以参与共识过程的共识者列表定义。因为测试网络仅使用一个Orderer节点，所以共识者列表仅包含一个端点：</span>
+    <span class="l l-Scalar l-Scalar-Plain">EtcdRaft</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">Consenters</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Host</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">orderer.example.com</span>
+          <span class="l l-Scalar l-Scalar-Plain">Port</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">7050</span>
+          <span class="l l-Scalar l-Scalar-Plain">ClientTLSCert</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt</span>
+          <span class="l l-Scalar l-Scalar-Plain">ServerTLSCert</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt</span>
+
+    <span class="c1"># 创建新块的频率</span>
+    <span class="l l-Scalar l-Scalar-Plain">BatchTimeout</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2s</span>
+
+    <span class="c1"># 块的大小</span>
+    <span class="l l-Scalar l-Scalar-Plain">BatchSize</span><span class="p p-Indicator">:</span>
+        <span class="c1"># 最大交易数，达到后会产生区块</span>
+        <span class="l l-Scalar l-Scalar-Plain">MaxMessageCount</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+        <span class="c1"># 最大区块大小，达到后会产生区块</span>
+        <span class="l l-Scalar l-Scalar-Plain">AbsoluteMaxBytes</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">99 MB</span>
+        <span class="c1"># 默认区块大小</span>
+        <span class="l l-Scalar l-Scalar-Plain">PreferredMaxBytes</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">512 KB</span>
+
+    <span class="c1"># 组织，目前为空</span>
+    <span class="l l-Scalar l-Scalar-Plain">Organizations</span><span class="p p-Indicator">:</span>
+
+    <span class="c1"># orders的策略</span>
+    <span class="l l-Scalar l-Scalar-Plain">Policies</span><span class="p p-Indicator">:</span>
+        <span class="l l-Scalar l-Scalar-Plain">Readers</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;ANY</span><span class="nv"> </span><span class="s">Readers&quot;</span>
+        <span class="l l-Scalar l-Scalar-Plain">Writers</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;ANY</span><span class="nv"> </span><span class="s">Writers&quot;</span>
+        <span class="l l-Scalar l-Scalar-Plain">Admins</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;MAJORITY</span><span class="nv"> </span><span class="s">Admins&quot;</span>
+        <span class="c1"># BlockValidation来确认添加到通道的新块是由作为通道共识者集合一部分的Orderer节点生成的，并且该块未被篡改或被另一个Peer组织创建</span>
+        <span class="l l-Scalar l-Scalar-Plain">BlockValidation</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ImplicitMeta</span>
+            <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;ANY</span><span class="nv"> </span><span class="s">Writers&quot;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">OrdererOrg</span></code>的详情如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span>      <span class="c1"># 每个组织都由MSP ID和通道MSP标识。通道MSP存储在通道配置中，并包含用于标识组织的节点，应用程序和管理员的证书。</span>
+    <span class="p p-Indicator">-</span> <span class="nl">&amp;OrdererOrg</span>
+        <span class="c1"># 名称</span>
+        <span class="l l-Scalar l-Scalar-Plain">Name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">OrdererOrg</span>
+
+        <span class="c1"># ID </span>
+        <span class="l l-Scalar l-Scalar-Plain">ID</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">OrdererMSP</span>
+
+        <span class="c1"># MSP的文件夹</span>
+        <span class="l l-Scalar l-Scalar-Plain">MSPDir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">../organizations/ordererOrganizations/example.com/msp</span>
+
+        <span class="c1"># 策略用途：</span>
+        <span class="l l-Scalar l-Scalar-Plain">Policies</span><span class="p p-Indicator">:</span>
+            <span class="l l-Scalar l-Scalar-Plain">Readers</span><span class="p p-Indicator">:</span>
+                <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Signature</span>
+                <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;OR(&#39;OrdererMSP.member&#39;)&quot;</span>
+            <span class="l l-Scalar l-Scalar-Plain">Writers</span><span class="p p-Indicator">:</span>
+                <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Signature</span>
+                <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;OR(&#39;OrdererMSP.member&#39;)&quot;</span>
+            <span class="l l-Scalar l-Scalar-Plain">Admins</span><span class="p p-Indicator">:</span>
+                <span class="l l-Scalar l-Scalar-Plain">Type</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Signature</span>
+                <span class="l l-Scalar l-Scalar-Plain">Rule</span><span class="p p-Indicator">:</span> <span class="s">&quot;OR(&#39;OrdererMSP.admin&#39;)&quot;</span>
+
+        <span class="l l-Scalar l-Scalar-Plain">OrdererEndpoints</span><span class="p p-Indicator">:</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">orderer.example.com:7050</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">OrdererCapabilities</span></code>的详情如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span>    <span class="l l-Scalar l-Scalar-Plain">Orderer</span><span class="p p-Indicator">:</span> <span class="nl">&amp;OrdererCapabilities</span>
+        <span class="c1"># V2_0 的能力</span>
+        <span class="l l-Scalar l-Scalar-Plain">V2_0</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dockercompose.html" class="btn btn-neutral float-right" title="docker-compose 启动peers and orderering service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="crypto.html" class="btn btn-neutral" title="cryptogen生成证书" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

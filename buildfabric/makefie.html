@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Makefile编译Fabric源码 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="编译Fabric" href="../build.html"/>
+        <link rel="next" title="Dockerfile 生成 orderer 镜像" href="dockfile.html"/>
+        <link rel="prev" title="编译Fabric" href="../build.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../build.html">编译Fabric</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../build.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Makefile编译Fabric源码</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#makefile">Makefile 的用途是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#makefile-fabric">Makefile 在Fabric使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#make-dist-clean-all">make dist-clean all 命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#make-dist-clean-all">make dist-clean all 命令解析</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dockfile.html">Dockerfile 生成 orderer 镜像</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../build.html">编译Fabric</a> &raquo;</li>
+        
+      <li>Makefile编译Fabric源码</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/buildfabric/makefie.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="makefilefabric">
+<span id="makefilefabric"></span><h1>Makefile编译Fabric源码<a class="headerlink" href="#makefilefabric" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="makefile">
+<span id="makefile"></span><h2>Makefile 的用途是什么？<a class="headerlink" href="#makefile" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><code class="docutils literal notranslate"><span class="pre">man</span> <span class="pre">make</span></code>描述: The purpose of the make utility is to determine automatically which pieces of a large program need to be recompiled, and issue the commands to recompile them.</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">make</span></code> 程序的目的是自动化决定大型应用哪些部分需要被再编译，并且发布再编译的命令。</p>
+<blockquote>
+<div><code class="docutils literal notranslate"><span class="pre">make</span></code> 程序可以让”将源代码转化成可执行文件“之类的例行化工作自动化。  –《 GNU Make 项目管理 》</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">makelfile</span></code> 用途就是 <code class="docutils literal notranslate"><span class="pre">make</span></code> 程序存放工作细节的文件。</p>
+</div>
+<div class="section" id="makefile-fabric">
+<span id="makefile-fabric"></span><h2>Makefile 在Fabric使用场景是什么？<a class="headerlink" href="#makefile-fabric" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Fabric</span></code> 使用 <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> 编译可执行文件和docker镜像等。
+<code class="docutils literal notranslate"><span class="pre">Fabric</span></code> 源码目录下就有一个 <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> 文件，记录了如何编译可执行文件和 <code class="docutils literal notranslate"><span class="pre">docker</span></code> 镜像。</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/hyperledger/fabric
+make dist-clean all
+</pre></div>
+</div>
+<p>执行以上命令，就可以编译编译可执行文件和 <code class="docutils literal notranslate"><span class="pre">docker</span></code> 镜像。</p>
+</div>
+<div class="section" id="make-dist-clean-all">
+<span id="make-dist-clean-all"></span><h2>make dist-clean all 命令的效果是什么？<a class="headerlink" href="#make-dist-clean-all" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>生成如下文件.dummy-amd64-2.2.2-snapshot-db9a56fc1
+<img alt="" src="../_images/dummyfiles.png" /></li>
+<li>生成5个docker 镜像：<code class="docutils literal notranslate"><span class="pre">hyperledger/fabric-tools</span></code>  ，<code class="docutils literal notranslate"><span class="pre">hyperledger/fabric-peer</span></code>，
+<code class="docutils literal notranslate"><span class="pre">hyperledger/fabric-orderer</span></code>，<code class="docutils literal notranslate"><span class="pre">hyperledger/fabric-baseos</span></code>，<code class="docutils literal notranslate"><span class="pre">hyperledger/fabric-ccenv</span></code></li>
+</ul>
+</div>
+<div class="section" id="make-dist-clean-all">
+<span id="id1"></span><h2>make dist-clean all 命令解析<a class="headerlink" href="#make-dist-clean-all" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">dist-clean</span> <span class="pre">all</span></code> 首先执行<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">dist-clean</span></code>，过程如下</p>
+<div class="highlight-makefile notranslate"><div class="highlight"><pre><span></span><span class="c"># 遍历各操作系统名称并删除对应 `release` 文件。</span>
+<span class="nv">RELEASE_PLATFORMS</span> <span class="o">=</span> darwin-amd64 linux-amd64 windows-amd64
+<span class="nv">PROJECT_VERSION</span> <span class="o">=</span> 2.2.2-snapshot-db9a56fc1
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="n">dist</span>-<span class="n">clean</span>
+<span class="nf">dist-clean</span><span class="o">:</span>
+    -@for platform in <span class="k">$(</span>RELEASE_PLATFORMS<span class="k">)</span> <span class="s2">&quot;&quot;</span><span class="p">;</span> <span class="k">do</span> <span class="se">\</span>
+        <span class="o">[</span> -z <span class="s2">&quot;</span><span class="nv">$$</span><span class="s2">platform&quot;</span> <span class="o">]</span> <span class="o">||</span> rm -rf release/<span class="nv">$$</span><span class="o">{</span>platform<span class="o">}</span>/hyperledger-fabric-<span class="nv">$$</span><span class="o">{</span>platform<span class="o">}</span>.<span class="k">$(</span>PROJECT_VERSION<span class="k">)</span>.tar.gz<span class="p">;</span> <span class="se">\</span>
+    <span class="k">done</span>
+</pre></div>
+</div>
+<p>接下来执行<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">all</span></code>，过程如下</p>
+<div class="highlight-makefile notranslate"><div class="highlight"><pre><span></span><span class="c"># make all的目标，依次执行check-go-version native docker checks</span>
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="n">all</span>
+<span class="nf">all</span><span class="o">:</span> <span class="n">check</span>-<span class="n">go</span>-<span class="n">version</span> <span class="n">native</span> <span class="n">docker</span> <span class="n">checks</span>
+
+<span class="c"># check-go-version 执行scripts/check_go_version.sh文件，获取go的version。</span>
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="n">check</span>-<span class="n">go</span>-<span class="n">version</span>
+<span class="nf">check-go-version</span><span class="o">:</span>
+    @scripts/check_go_version.sh <span class="k">$(</span>GO_VER<span class="k">)</span>
+
+<span class="c"># native ：如何bin目录下不存在可执行文件就使用 go install 生成对应可执行文件</span>
+<span class="c"># 举例：如果bin目录下缺少orderer文件，就会执行 go install 生成orderer文件</span>
+<span class="nv">RELEASE_EXES</span> <span class="o">=</span> orderer configtxgen configtxlator cryptogen discover idemixgen peer
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="n">native</span>
+<span class="nf">native</span><span class="o">:</span> <span class="k">$(</span><span class="nv">RELEASE_EXES</span><span class="k">)</span>
+
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="k">$(</span><span class="nv">RELEASE_EXES</span><span class="k">)</span>
+<span class="nf">$(RELEASE_EXES)</span><span class="o">:</span> %: <span class="k">$(</span><span class="nv">BUILD_DIR</span><span class="k">)</span>/<span class="n">bin</span>/%
+
+<span class="nf">$(BUILD_DIR)/bin/%</span><span class="o">:</span> <span class="n">GO_LDFLAGS</span> = <span class="k">$(</span><span class="nv">METADATA_VAR</span>:%=-<span class="nv">X</span> <span class="k">$</span>(<span class="nv">PKGNAME</span><span class="k">)</span>/<span class="n">common</span>/<span class="n">metadata</span>.%)
+<span class="nf">$(BUILD_DIR)/bin/%</span><span class="o">:</span>
+    @echo <span class="s2">&quot;Building </span><span class="nv">$@</span><span class="s2">&quot;</span>
+    @mkdir -p <span class="k">$(</span>@D<span class="k">)</span>
+    <span class="nv">GOBIN</span><span class="o">=</span><span class="k">$(</span>abspath <span class="k">$(</span>@D<span class="k">))</span> go install -tags <span class="s2">&quot;</span><span class="k">$(</span>GO_TAGS<span class="k">)</span><span class="s2">&quot;</span> -ldflags <span class="s2">&quot;</span><span class="k">$(</span>GO_LDFLAGS<span class="k">)</span><span class="s2">&quot;</span> <span class="k">$(</span>pkgmap.<span class="k">$(</span>@F<span class="k">))</span>
+    @touch <span class="nv">$@</span>
+
+<span class="c"># docker 分别生成images目录下对应文件夹的镜像</span>
+<span class="c"># 举例，如果images/peer目录下没有文件，则会使用images/peer/Dockerfile 生成镜像</span>
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="n">docker</span>
+<span class="nf">docker</span><span class="o">:</span> <span class="k">$(</span><span class="nv">RELEASE_IMAGES</span>:%=%-<span class="nv">docker</span><span class="k">)</span>
+
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="k">$(</span><span class="nv">RELEASE_IMAGES</span>:%=%-<span class="nv">docker</span><span class="k">)</span>
+<span class="nf">$(RELEASE_IMAGES</span><span class="o">:</span>%=%-<span class="n">docker</span>): %-<span class="n">docker</span>: <span class="k">$(</span><span class="nv">BUILD_DIR</span><span class="k">)</span>/<span class="n">images</span>/%/<span class="k">$(</span><span class="nv">DUMMY</span><span class="k">)</span>
+
+<span class="nf">$(BUILD_DIR)/images/ccenv/$(DUMMY)</span><span class="o">:</span>   <span class="n">BUILD_CONTEXT</span>=<span class="n">images</span>/<span class="n">ccenv</span>
+<span class="nf">$(BUILD_DIR)/images/baseos/$(DUMMY)</span><span class="o">:</span>  <span class="n">BUILD_CONTEXT</span>=<span class="n">images</span>/<span class="n">baseos</span>
+<span class="nf">$(BUILD_DIR)/images/peer/$(DUMMY)</span><span class="o">:</span>    <span class="n">BUILD_ARGS</span>=--<span class="n">build</span>-<span class="n">arg</span> <span class="n">GO_TAGS</span>=${<span class="n">GO_TAGS</span>}
+<span class="nf">$(BUILD_DIR)/images/orderer/$(DUMMY)</span><span class="o">:</span> <span class="n">BUILD_ARGS</span>=--<span class="n">build</span>-<span class="n">arg</span> <span class="n">GO_TAGS</span>=${<span class="n">GO_TAGS</span>}
+
+<span class="nf">$(BUILD_DIR)/images/%/$(DUMMY)</span><span class="o">:</span>
+    @echo <span class="s2">&quot;Building Docker image </span><span class="k">$(</span>DOCKER_NS<span class="k">)</span><span class="s2">/fabric-</span><span class="nv">$*</span><span class="s2">&quot;</span>
+    @mkdir -p <span class="k">$(</span>@D<span class="k">)</span>
+    <span class="k">$(</span>DBUILD<span class="k">)</span> -f images/<span class="nv">$*</span>/Dockerfile <span class="se">\</span>
+        --build-arg <span class="nv">GO_VER</span><span class="o">=</span><span class="k">$(</span>GO_VER<span class="k">)</span> <span class="se">\</span>
+        --build-arg <span class="nv">ALPINE_VER</span><span class="o">=</span><span class="k">$(</span>ALPINE_VER<span class="k">)</span> <span class="se">\</span>
+        <span class="k">$(</span>BUILD_ARGS<span class="k">)</span> <span class="se">\</span>
+        -t <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span> ./<span class="k">$(</span>BUILD_CONTEXT<span class="k">)</span>
+    docker tag <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span> <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span>:<span class="k">$(</span>BASE_VERSION<span class="k">)</span>
+    docker tag <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span> <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span>:<span class="k">$(</span>TWO_DIGIT_VERSION<span class="k">)</span>
+    docker tag <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span> <span class="k">$(</span>DOCKER_NS<span class="k">)</span>/fabric-<span class="nv">$*</span>:<span class="k">$(</span>DOCKER_TAG<span class="k">)</span>
+    @touch <span class="nv">$@</span>
+
+<span class="c"># 基础测试 单元测试 集成测试</span>
+<span class="nf">.PHONY</span><span class="o">:</span> <span class="n">checks</span>
+<span class="nf">checks</span><span class="o">:</span> <span class="n">basic</span>-<span class="n">checks</span> <span class="n">unit</span>-<span class="n">test</span> <span class="n">integration</span>-<span class="n">test</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dockfile.html" class="btn btn-neutral float-right" title="Dockerfile 生成 orderer 镜像" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../build.html" class="btn btn-neutral" title="编译Fabric" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

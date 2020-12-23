@@ -1,0 +1,113 @@
+# Prerequisites 安装环境和测试网络
+
+
+目的：安装环境，使用官网的测试网络。熟悉Fabric的基本功能。
+## Install Git
+
+如果还没安装，下载最新版本的 [git](https://git-scm.com/downloads) , 或者你运行curl命令有问题。
+
+
+## Docker 和 Docker Compose
+
+您将需要在将要运行或基于 Hyperledger Fabric 开发（或开发 Hyperledger Fabric）的平台上安装以下内容：
+
+* MacOSX ： 要求 Docker 版本 17.06.2-ce 及以上
+
+您可以通过执行以下命令来检查已安装的 Docker 的版本：
+
+```
+docker --version
+```
+
+您可以通过执行以下命令来检查已安装的 Docker Compose 的版本：
+
+
+```
+docker-compose --version
+```
+
+注：关闭docker的`Kubernetes`，和`Use gRPC FUSE for file sharing`。否则后面会报错。
+
+
+## Install Docker and Docker Compose 安装示例、二进制和 Docker 镜像
+```
+curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.0 1.4.7
+```
+
+该命令做的事：
+1. 下载并执行 [bootstrap.sh](https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh)
+2. 下载 [fabric-samples](https://github.com/hyperledger/fabric-samples.git) 
+3. 下载 Hyperledger Fabric 的执行文件
+4. 下载 Hyperledger Fabric docker images
+
+你可能希望将其添加到 PATH 环境变量中，以便在不需要指定每个二进制文件的绝对路径的情况下获取这些命令。例如：
+
+```
+export PATH=<path to download location>/bin:$PATH
+```
+
+## Using the Fabric test network 使用测试网络
+
+您可以在fabric-samples代码库的test-network目录中找到启动网络的脚本。 使用以下命令导航至测试网络目录：
+```
+cd fabric-samples/test-network
+```
+
+在test-network目录中，运行以下命令删除先前运行的所有容器或工程：
+```
+./network.sh down
+```
+
+然后，您可以通过执行以下命令来启动网络。如果您尝试从另一个目录运行脚本，则会遇到问题：
+
+```
+./network.sh up
+```
+
+您可以使用network.sh脚本在Org1和Org2之间创建通道并加入他们的对等节点。 运行以下命令以创建一个默认名称为“ mychannel”的通道：
+```
+./network.sh createChannel
+```
+
+使用network.sh创建频道后，您可以使用以下命令在通道上启动链码：
+```
+./network.sh deployCC
+```
+
+##  Interacting with the network 与网络交互 
+
+在您启用测试网络后，可以使用`peer` CLI与您的网络进行交互。
+`peer` CLI允许您调用已部署的智能合约，更新通道，或安装和部署新的智能合约。
+
+确保您正在从`test-network`目录进行操作。
+如果你按照说明[安装示例，二进制文件和Docker映像](install.html)，
+您可以在`fabric-samples`代码库的`bin`文件夹中找到`peer`二进制文件。
+使用以下命令将这些二进制文件添加到您的CLI路径：
+```
+export PATH=${PWD}/../bin:$PATH
+```
+
+您还需要将`fabric-samples`代码库中的`FABRIC_CFG_PATH`设置为指向其中的`core.yaml`文件：
+```
+export FABRIC_CFG_PATH=$PWD/../config/
+```
+
+现在，您可以设置环境变量，以允许您作为Org1操作`peer` CLI：
+```
+# Environment variables for Org1
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+```
+
+`CORE_PEER_TLS_ROOTCERT_FILE`和`CORE_PEER_MSPCONFIGPATH`环境变量指向Org1的`organizations`文件夹中的的加密材料。
+如果您使用`./network.sh deployCC`安装和启动fabcar链码，您现在可以从CLI查询账本。
+运行以下命令以获取已添加到通道账本中的汽车列表：
+```
+peer chaincode query -C mychannel -n fabcar -c '{"Args":["queryAllCars"]}'
+```
+
+

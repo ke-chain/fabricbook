@@ -1,0 +1,143 @@
+# 获取 Operations  : 操作服务
+
+## Fabric Orderer 中 Operations 用途是什么？
+
+Peer 和 orderer 管理一个 HTTP 服务器，该服务器提供 RESTful “操作” API。此API与Fabric网络服务无关，旨在供操作人员使用，而非网络管理员或“用户”。
+
+该 API 提供了以下功能：
+
+- 日志级别管理
+- 健康检查
+- （当API被配置时）操作指标数据的Prometheus目标
+
+
+在默认 orderer.yaml 文件中的 Operations 配置了对应的地址和 TSL ，Metrics 配置了指标数据( 默认没有开启 )
+
+
+## Operations 底层调用了什么？
+
+Operations 实际上是一个提供 RESTful “操作” API 的服务器。
+显示初始化花了一个服务器，然后添加路径： logspec 、healthz、 version、  metrics 进行对应操作。
+
+
+```go
+// 新建 Operations 服务
+func newOperationsSystem(ops localconfig.Operations, metrics localconfig.Metrics) *operations.System {
+	return operations.NewSystem(operations.Options{
+		Logger:        flogging.MustGetLogger("orderer.operations"),
+		ListenAddress: ops.ListenAddress,
+		Metrics: operations.MetricsOptions{
+			Provider: metrics.Provider,
+			Statsd: &operations.Statsd{
+				Network:       metrics.Statsd.Network,
+				Address:       metrics.Statsd.Address,
+				WriteInterval: metrics.Statsd.WriteInterval,
+				Prefix:        metrics.Statsd.Prefix,
+			},
+		},
+		TLS: operations.TLS{
+			Enabled:            ops.TLS.Enabled,
+			CertFile:           ops.TLS.Certificate,
+			KeyFile:            ops.TLS.PrivateKey,
+			ClientCertRequired: ops.TLS.ClientAuthRequired,
+			ClientCACertFiles:  ops.TLS.ClientRootCAs,
+		},
+		Version: metadata.Version,
+	})
+}
+
+// 初始化服务器，添加日志级别管理 、健康检查 、操作指标数据 、版本信息 操作
+func NewSystem(o Options) *System {
+    ...
+	system.initializeServer()
+	system.initializeHealthCheckHandler()
+	system.initializeLoggingHandler()
+	system.initializeMetricsProvider()
+	system.initializeVersionInfoHandler()
+    ... 
+}
+
+// 初始化服务器
+func (s *System) initializeServer() {
+	s.mux = http.NewServeMux()
+	s.httpServer = &http.Server{
+		Addr:         s.options.ListenAddress,
+		Handler:      s.mux,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 2 * time.Minute,
+	}
+}
+
+// 日志级别管理服务
+func (s *System) initializeLoggingHandler() {
+	s.mux.Handle("/logspec", s.handlerChain(httpadmin.NewSpecHandler(), s.options.TLS.Enabled))
+}
+
+// 健康检查服务
+func (s *System) initializeHealthCheckHandler() {
+	s.healthHandler = healthz.NewHealthHandler()
+	s.mux.Handle("/healthz", s.handlerChain(s.healthHandler, false))
+}
+
+// 版本信息服务
+func (s *System) initializeVersionInfoHandler() {
+	versionInfo := &VersionInfoHandler{
+		CommitSHA: metadata.CommitSHA,
+		Version:   metadata.Version,
+	}
+	s.mux.Handle("/version", s.handlerChain(versionInfo, false))
+}
+
+// 根据配置设置 操作指标数据
+func (s *System) initializeMetricsProvider() error {
+	m := s.options.Metrics
+	providerType := m.Provider
+	switch providerType {
+	case "statsd":
+		prefix := m.Statsd.Prefix
+		if prefix != "" && !strings.HasSuffix(prefix, ".") {
+			prefix = prefix + "."
+		}
+
+		ks := kitstatsd.New(prefix, s)
+		s.Provider = &statsd.Provider{Statsd: ks}
+		s.statsd = ks
+		s.versionGauge = versionGauge(s.Provider)
+		return nil
+
+	case "prometheus":
+		s.Provider = &prometheus.Provider{}
+		s.versionGauge = versionGauge(s.Provider)
+		s.mux.Handle("/metrics", s.handlerChain(promhttp.Handler(), s.options.TLS.Enabled))
+		return nil
+
+	default:
+		if providerType != "disabled" {
+			s.logger.Warnf("Unknown provider type: %s; metrics disabled", providerType)
+		}
+
+		s.Provider = &disabled.Provider{}
+		s.versionGauge = versionGauge(s.Provider)
+		return nil
+	}
+}
+
+
+```
+
+## 重造 Operations
+
+
+将Hyperledger Fabric的 Operations 代码加入工程。
+
+```sh
+$ make orderer
+$ docker run -v $PWD/build/bin:/usr/local/bin  -it --rm hyperledger/fabric-orderer:2.2 /bin/sh
+$ orderer
+...
+打印默认 Operations 信息
+```
+
+## 本文源码地址
+
+https://github.com/ke-chain/fabric/tree/v0.4

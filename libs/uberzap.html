@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>uber zap日志框架 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="Fabric如何提高性能" href="../performancelibs.html"/>
+        <link rel="prev" title="Fabric如何提高性能" href="../performancelibs.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">uber zap日志框架</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-zap">why zap？</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zap-how">zap, how ?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encoder">内建的 Encoder: 避免反射</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gc">避免 GC: 对象复用</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sync-pool">对象池：sync.Pool。</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#copy-on-write">Copy-on-write（写时拷贝）</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../performancelibs.html">Fabric如何提高性能</a> &raquo;</li>
+        
+      <li>uber zap日志框架</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/libs/uberzap.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="uber-zap">
+<span id="uber-zap"></span><h1>uber zap日志框架<a class="headerlink" href="#uber-zap" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="why-zap">
+<span id="why-zap"></span><h2>why zap？<a class="headerlink" href="#why-zap" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Blazing fast, structured, leveled logging in Go.
+一个 Go语言的 非常快速，结构化，等级化的日志工具。</div></blockquote>
+</div>
+<div class="section" id="zap-how">
+<span id="zap-how"></span><h2>zap, how ?<a class="headerlink" href="#zap-how" title="Permalink to this headline">¶</a></h2>
+<p>官网原文：</p>
+<blockquote>
+<div>For applications that log in the hot path, reflection-based serialization and
+string formatting are prohibitively expensive <p>—</p>
+ they’re CPU-intensive
+and make many small allocations. Put differently, using <code class="docutils literal notranslate"><span class="pre">encoding/json</span></code> and
+<code class="docutils literal notranslate"><span class="pre">fmt.Fprintf</span></code> to log tons of <code class="docutils literal notranslate"><span class="pre">interface{}</span></code>s makes your application slow.</div></blockquote>
+<blockquote>
+<div>Zap takes a different approach. It includes a reflection-free, zero-allocation
+JSON encoder, and the base <code class="docutils literal notranslate"><span class="pre">Logger</span></code> strives to avoid serialization overhead
+and allocations wherever possible.</div></blockquote>
+<p>对于很多应用程序而言，在当前路径写日志、基于反射的序列化和字符串格式化代价过于高昂；这些操作是cpu密集并且执行很多小内存分配。
+换句话说，使用<code class="docutils literal notranslate"><span class="pre">encoding/json</span></code>和<code class="docutils literal notranslate"><span class="pre">fmt.Fprintf</span></code>来记录巨量<code class="docutils literal notranslate"><span class="pre">interface{}</span></code>日志让你的应用程序变慢。</p>
+<p>Zap使用了另一种方法。它包含了一个无反射、零分配的JSON编码器，并且基础的<code class="docutils literal notranslate"><span class="pre">Logger</span></code>努力规避提前序列化和可能的内存分配。</p>
+<p>具体Zap主要做了三件事提高性能：</p>
+<ol class="simple">
+<li>内建的 Encoder: 避免反射</li>
+<li>避免 GC: 对象复用</li>
+</ol>
+</div>
+<div class="section" id="encoder">
+<span id="encoder"></span><h2>内建的 Encoder: 避免反射<a class="headerlink" href="#encoder" title="Permalink to this headline">¶</a></h2>
+<p>从fabric的入口flogging.MustGetLogger 查看调用链，最终log的encoder是zaplogfmt.NewEncoder返回的logfmtEncoder。
+调用堆栈如下：
+<img alt="" src="../_images/encodeentry.png" /></p>
+<p>logfmtEncoder编码过程规避了reflectValue，转而采用typeof判断类型然后使用byte[] 拼接。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span>// AddTo exports a field through the ObjectEncoder interface. It&#39;s primarily
+// useful to library authors, and shouldn&#39;t be necessary in most applications.
+func (f Field) AddTo(enc ObjectEncoder) {
+    var err error
+​
+    switch f.Type {
+    case ArrayMarshalerType:
+        err = enc.AddArray(f.Key, f.Interface.(ArrayMarshaler))
+    case ObjectMarshalerType:
+        err = enc.AddObject(f.Key, f.Interface.(ObjectMarshaler))
+    case BinaryType:
+        enc.AddBinary(f.Key, f.Interface.([]byte))
+    case BoolType:
+        enc.AddBool(f.Key, f.Integer == 1)
+    case ByteStringType:
+        enc.AddByteString(f.Key, f.Interface.([]byte))
+    ……
+}
+
+func (enc *jsonEncoder) AddBinary(key string, val []byte) {
+    enc.AddString(key, base64.StdEncoding.EncodeToString(val))
+}
+
+...
+// b.bs是byte[]类型，最后都是通过拼接byte[]完成编码
+func (b *Buffer) AppendString(s string) {
+    b.bs = append(b.bs, s...)
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="gc">
+<span id="gc"></span><h2>避免 GC: 对象复用<a class="headerlink" href="#gc" title="Permalink to this headline">¶</a></h2>
+<p>zap采用了两种方式避免gc，一种是对象池，另一种是Copy-on-write</p>
+<div class="section" id="sync-pool">
+<span id="sync-pool"></span><h3>对象池：sync.Pool。<a class="headerlink" href="#sync-pool" title="Permalink to this headline">¶</a></h3>
+<p>encoder使用对象池复用logfmtEncoder，Buffer，CheckedEntry等对象。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="p">(</span>
+<span class="nx">logfmtPool</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Pool</span><span class="p">{</span>
+    <span class="nx">New</span><span class="p">:</span> <span class="kd">func</span><span class="p">()</span> <span class="kd">interface</span><span class="p">{}</span> <span class="p">{</span> <span class="k">return</span> <span class="o">&amp;</span><span class="nx">logfmtEncoder</span><span class="p">{}</span> <span class="p">},</span>
+<span class="p">}</span>
+<span class="nx">bufferpool</span> <span class="p">=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">NewPool</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="kd">var</span> <span class="p">(</span>
+<span class="nx">_cePool</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Pool</span><span class="p">{</span><span class="nx">New</span><span class="p">:</span> <span class="kd">func</span><span class="p">()</span> <span class="kd">interface</span><span class="p">{}</span> <span class="p">{</span>
+    <span class="c1">// Pre-allocate some space for cores.</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">CheckedEntry</span><span class="p">{</span>
+        <span class="nx">cores</span><span class="p">:</span> <span class="nb">make</span><span class="p">([]</span><span class="nx">Core</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">}}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="copy-on-write">
+<span id="copy-on-write"></span><h3>Copy-on-write（写时拷贝）<a class="headerlink" href="#copy-on-write" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>写时拷贝，是计算机程序设计领域的一种优化策略，其核心思想是，当有多个调用者都需要请求相同资源时，一开始资源只会有一份，多个调用者共同读取这一份资源，当某个调用者需要修改数据的时候，才会分配一块内存，将数据拷贝过去，供这个调用者使用，而其他调用者依然还是读取最原始的那份数据。每次有调用者需要修改数据时，就会重复一次拷贝流程，供调用者修改使用。</div></blockquote>
+<p>Zap写时复统一用的clone方法。在logger，consolelogger，core等中均有使用。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">log</span> <span class="o">*</span><span class="nx">Logger</span><span class="p">)</span> <span class="nx">clone</span><span class="p">()</span> <span class="o">*</span><span class="nx">Logger</span> <span class="p">{</span>
+    <span class="nx">copy</span> <span class="o">:=</span> <span class="o">*</span><span class="nx">log</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">copy</span>
+<span class="p">}</span>
+
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">ioCore</span><span class="p">)</span> <span class="nx">clone</span><span class="p">()</span> <span class="o">*</span><span class="nx">ioCore</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">ioCore</span><span class="p">{</span>
+        <span class="nx">LevelEnabler</span><span class="p">:</span> <span class="nx">c</span><span class="p">.</span><span class="nx">LevelEnabler</span><span class="p">,</span>
+        <span class="nx">enc</span><span class="p">:</span>          <span class="nx">c</span><span class="p">.</span><span class="nx">enc</span><span class="p">.</span><span class="nx">Clone</span><span class="p">(),</span>
+        <span class="nx">out</span><span class="p">:</span>          <span class="nx">c</span><span class="p">.</span><span class="nx">out</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../performancelibs.html" class="btn btn-neutral" title="Fabric如何提高性能" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

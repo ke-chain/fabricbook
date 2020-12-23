@@ -1,0 +1,30 @@
+重造轮子：`Orderer`
+===========================
+
+`Orderer` 排序节点是什么？
+------------------------------------------
+`Orderer` 在 `Hyperledger` 系统架构在处于核心角色地位，主要功能如下 :
+
+- 通道创建和更新
+- 排序交易并打包成新区块
+- 提交账本并维护通道账本
+- 为全网提供 `Broadcast` 交易广播服务、`Orderer` 共识排序服务、`Deliver` 区块分发服务
+
+
+
+这个章节要做些什么？
+------------------------------------------
+- 分析 `orderer` 节点的设计与实现
+- 重写一个 `orderer`
+
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: 重造轮子：`orderer`
+
+   orderer/loadconfig
+   orderer/initlogger
+   orderer/bccsp
+   orderer/msp
+   orderer/operations

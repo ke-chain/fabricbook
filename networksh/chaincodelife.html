@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>peer lifecycle chaincode 创建链码 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="peer chaincode 运行链码" href="chaincode.html"/>
+        <link rel="prev" title="peer channel join 加入通道" href="peerchanneljoin.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="prereqs.html">Prerequisites 安装环境和测试网络</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crypto.html">cryptogen生成证书</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configtxgen.html">configtxgen创建通道配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dockercompose.html">docker-compose 启动peers and orderering service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchannelcreate.html">peer channel create 创建通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">peer lifecycle chaincode 创建链码</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#peer-lifecycle-chaincode">peer lifecycle chaincode 的用途？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-sh">在network.sh的使用场景是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peer-lifecycle-chaincode">peer lifecycle chaincode 命令的效果是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peer-lifecycle-chaincode">peer lifecycle chaincode 命令参数什么含义？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="chaincode.html">peer chaincode 运行链码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>peer lifecycle chaincode 创建链码</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/chaincodelife.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="peer-lifecycle-chaincode">
+<span id="peer-lifecycle-chaincode"></span><h1>peer lifecycle chaincode 创建链码<a class="headerlink" href="#peer-lifecycle-chaincode" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="peer-lifecycle-chaincode">
+<span id="id1"></span><h2>peer lifecycle chaincode 的用途？<a class="headerlink" href="#peer-lifecycle-chaincode" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>官网原文：The peer lifecycle chaincode subcommand allows administrators to use the Fabric chaincode lifecycle to package a chaincode, install it on your peers, approve a chaincode definition for your organization, and then commit the definition to a channel. The chaincode is ready to be used after the definition has been successfully committed to the channel.</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">lifecycle</span> <span class="pre">chaincode</span></code>子命令允许管理员使用 <code class="docutils literal notranslate"><span class="pre">Fabric</span></code> 链码生命周期打包链码，安装链码到节点，使组织同意链码定义，之后提交链码定义到通道。链码在定义被提交到通道后就已经可以使用了。</p>
+</div>
+<div class="section" id="network-sh">
+<span id="network-sh"></span><h2>在network.sh的使用场景是什么？<a class="headerlink" href="#network-sh" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">network.sh</span></code> 使用<code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">lifecycle</span> <span class="pre">chaincode</span></code> 进行从打包到提交的过程。</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1">#打包链码</span>
+peer lifecycle chaincode package fabcar.tar.gz --path <span class="si">${</span><span class="nv">CC_SRC_PATH</span><span class="si">}</span> --lang <span class="si">${</span><span class="nv">CC_RUNTIME_LANGUAGE</span><span class="si">}</span> --label fabcar_<span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> 
+
+<span class="c1"># 安装链码</span>
+peer lifecycle chaincode install fabcar.tar.gz 
+
+<span class="c1"># 查询已安装链码</span>
+peer lifecycle chaincode queryinstalled
+
+<span class="c1"># 同意链码定义</span>
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile <span class="nv">$ORDERER_CA</span> --channelID <span class="nv">$CHANNEL_NAME</span> --name fabcar --version <span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> --init-required --package-id <span class="si">${</span><span class="nv">PACKAGE_ID</span><span class="si">}</span> --sequence <span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> 
+
+<span class="c1"># 提交链码定义</span>
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile <span class="nv">$ORDERER_CA</span> --channelID <span class="nv">$CHANNEL_NAME</span> --name fabcar <span class="nv">$PEER_CONN_PARMS</span> --version <span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> --sequence <span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> --init-required 
+</pre></div>
+</div>
+</div>
+<div class="section" id="peer-lifecycle-chaincode">
+<span id="id2"></span><h2>peer lifecycle chaincode 命令的效果是什么？<a class="headerlink" href="#peer-lifecycle-chaincode" title="Permalink to this headline">¶</a></h2>
+<p>在上述流程完成后，使用 <code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">chaincode</span> <span class="pre">invoke</span></code> 可以调用该链码。</p>
+</div>
+<div class="section" id="peer-lifecycle-chaincode">
+<span id="id3"></span><h2>peer lifecycle chaincode 命令参数什么含义？<a class="headerlink" href="#peer-lifecycle-chaincode" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">lifecycle</span> <span class="pre">chaincode</span> <span class="pre">package</span></code></p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">fabcar.tar.gz</span></code>: 输出文件的名称</li>
+<li><code class="docutils literal notranslate"><span class="pre">--path</span></code> :链码地址</li>
+<li><code class="docutils literal notranslate"><span class="pre">--lang</span></code>:链码使用的语言(默认go)</li>
+<li><code class="docutils literal notranslate"><span class="pre">--label</span></code>:链码标签，人类看得懂的包信息</li>
+</ul>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">lifecycle</span> <span class="pre">chaincode</span> <span class="pre">install</span></code></p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">fabcar.tar.gz</span></code>: 需要安装的链码包</li>
+</ul>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">peer</span> <span class="pre">lifecycle</span> <span class="pre">chaincode</span> <span class="pre">queryinstalled</span></code> ：查找已安装的链码
+返回信息如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Installed</span> <span class="n">chaincodes</span> <span class="n">on</span> <span class="n">peer</span><span class="p">:</span>
+<span class="n">Package</span> <span class="n">ID</span><span class="p">:</span> <span class="n">fabcar_1</span><span class="p">:</span><span class="mi">762</span><span class="n">e0fe3dbeee0f7b08fb6200adeb4a3a20f649a00f168c0b3c2257e53b6e506</span><span class="p">,</span> <span class="n">Label</span><span class="p">:</span> <span class="n">fabcar_1</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">approveformyorg</span></code>和<code class="docutils literal notranslate"><span class="pre">commit</span></code></p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">-o</span></code> :orderer节点的url</li>
+<li><code class="docutils literal notranslate"><span class="pre">--ordererTLSHostnameOverride</span></code>:建立tls连接时优先使用的hostname</li>
+<li><code class="docutils literal notranslate"><span class="pre">--tls</span></code> ：开启tls</li>
+<li><code class="docutils literal notranslate"><span class="pre">--cafile</span></code>：orderer终端PEM编码的可信任证书的地址</li>
+<li><code class="docutils literal notranslate"><span class="pre">--channelID</span></code>：通道id</li>
+<li><code class="docutils literal notranslate"><span class="pre">--name</span></code> ：链码名字</li>
+<li><code class="docutils literal notranslate"><span class="pre">--version</span></code>：链码版本</li>
+<li><code class="docutils literal notranslate"><span class="pre">--init-required</span></code>：链码是否需要调用 <code class="docutils literal notranslate"><span class="pre">init</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">--package-id</span></code>:链码包的id</li>
+<li><code class="docutils literal notranslate"><span class="pre">--sequence</span></code> ：通道中链码定义的顺序</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="chaincode.html" class="btn btn-neutral float-right" title="peer chaincode 运行链码" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="peerchanneljoin.html" class="btn btn-neutral" title="peer channel join 加入通道" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

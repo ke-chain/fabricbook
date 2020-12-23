@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Prerequisites 安装环境和测试网络 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/>
+        <link rel="next" title="cryptogen生成证书" href="crypto.html"/>
+        <link rel="prev" title="官网教程详解：使用Fabric的测试网络" href="../network.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../network.html#id1">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Prerequisites 安装环境和测试网络</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#install-git">Install Git</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#docker-docker-compose">Docker 和 Docker Compose</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-docker-and-docker-compose-docker">Install Docker and Docker Compose 安装示例、二进制和 Docker 镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-the-fabric-test-network">Using the Fabric test network 使用测试网络</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#interacting-with-the-network">Interacting with the network 与网络交互</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="crypto.html">cryptogen生成证书</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configtxgen.html">configtxgen创建通道配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dockercompose.html">docker-compose 启动peers and orderering service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchannelcreate.html">peer channel create 创建通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="peerchanneljoin.html">peer channel join 加入通道</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincodelife.html">peer lifecycle chaincode 创建链码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chaincode.html">peer chaincode 运行链码</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../network.html">官网教程详解：使用Fabric的测试网络</a> &raquo;</li>
+        
+      <li>Prerequisites 安装环境和测试网络</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/networksh/prereqs.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="prerequisites">
+<span id="prerequisites"></span><h1>Prerequisites 安装环境和测试网络<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h1>
+<p>目的：安装环境，使用官网的测试网络。熟悉Fabric的基本功能。</p>
+<div class="section" id="install-git">
+<span id="install-git"></span><h2>Install Git<a class="headerlink" href="#install-git" title="Permalink to this headline">¶</a></h2>
+<p>如果还没安装，下载最新版本的 <a class="reference external" href="https://git-scm.com/downloads">git</a> , 或者你运行curl命令有问题。</p>
+</div>
+<div class="section" id="docker-docker-compose">
+<span id="docker-docker-compose"></span><h2>Docker 和 Docker Compose<a class="headerlink" href="#docker-docker-compose" title="Permalink to this headline">¶</a></h2>
+<p>您将需要在将要运行或基于 Hyperledger Fabric 开发（或开发 Hyperledger Fabric）的平台上安装以下内容：</p>
+<ul class="simple">
+<li>MacOSX ： 要求 Docker 版本 17.06.2-ce 及以上</li>
+</ul>
+<p>您可以通过执行以下命令来检查已安装的 Docker 的版本：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<p>您可以通过执行以下命令来检查已安装的 Docker Compose 的版本：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<p>注：关闭docker的<code class="docutils literal notranslate"><span class="pre">Kubernetes</span></code>，和<code class="docutils literal notranslate"><span class="pre">Use</span> <span class="pre">gRPC</span> <span class="pre">FUSE</span> <span class="pre">for</span> <span class="pre">file</span> <span class="pre">sharing</span></code>。否则后面会报错。</p>
+</div>
+<div class="section" id="install-docker-and-docker-compose-docker">
+<span id="install-docker-and-docker-compose-docker"></span><h2>Install Docker and Docker Compose 安装示例、二进制和 Docker 镜像<a class="headerlink" href="#install-docker-and-docker-compose-docker" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">sSL</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">bit</span><span class="o">.</span><span class="n">ly</span><span class="o">/</span><span class="mi">2</span><span class="n">ysbOFE</span> <span class="o">|</span> <span class="n">bash</span> <span class="o">-</span><span class="n">s</span> <span class="o">--</span> <span class="mf">2.2</span><span class="o">.</span><span class="mi">0</span> <span class="mf">1.4</span><span class="o">.</span><span class="mi">7</span>
+</pre></div>
+</div>
+<p>该命令做的事：</p>
+<ol class="simple">
+<li>下载并执行 <a class="reference external" href="https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh">bootstrap.sh</a></li>
+<li>下载 <a class="reference external" href="https://github.com/hyperledger/fabric-samples.git">fabric-samples</a></li>
+<li>下载 Hyperledger Fabric 的执行文件</li>
+<li>下载 Hyperledger Fabric docker images</li>
+</ol>
+<p>你可能希望将其添加到 PATH 环境变量中，以便在不需要指定每个二进制文件的绝对路径的情况下获取这些命令。例如：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PATH=&lt;path to download location&gt;/bin:$PATH
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-the-fabric-test-network">
+<span id="using-the-fabric-test-network"></span><h2>Using the Fabric test network 使用测试网络<a class="headerlink" href="#using-the-fabric-test-network" title="Permalink to this headline">¶</a></h2>
+<p>您可以在fabric-samples代码库的test-network目录中找到启动网络的脚本。 使用以下命令导航至测试网络目录：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">fabric</span><span class="o">-</span><span class="n">samples</span><span class="o">/</span><span class="n">test</span><span class="o">-</span><span class="n">network</span>
+</pre></div>
+</div>
+<p>在test-network目录中，运行以下命令删除先前运行的所有容器或工程：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">network</span><span class="o">.</span><span class="n">sh</span> <span class="n">down</span>
+</pre></div>
+</div>
+<p>然后，您可以通过执行以下命令来启动网络。如果您尝试从另一个目录运行脚本，则会遇到问题：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">network</span><span class="o">.</span><span class="n">sh</span> <span class="n">up</span>
+</pre></div>
+</div>
+<p>您可以使用network.sh脚本在Org1和Org2之间创建通道并加入他们的对等节点。 运行以下命令以创建一个默认名称为“ mychannel”的通道：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">network</span><span class="o">.</span><span class="n">sh</span> <span class="n">createChannel</span>
+</pre></div>
+</div>
+<p>使用network.sh创建频道后，您可以使用以下命令在通道上启动链码：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">network</span><span class="o">.</span><span class="n">sh</span> <span class="n">deployCC</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="interacting-with-the-network">
+<span id="interacting-with-the-network"></span><h2>Interacting with the network 与网络交互<a class="headerlink" href="#interacting-with-the-network" title="Permalink to this headline">¶</a></h2>
+<p>在您启用测试网络后，可以使用<code class="docutils literal notranslate"><span class="pre">peer</span></code> CLI与您的网络进行交互。
+<code class="docutils literal notranslate"><span class="pre">peer</span></code> CLI允许您调用已部署的智能合约，更新通道，或安装和部署新的智能合约。</p>
+<p>确保您正在从<code class="docutils literal notranslate"><span class="pre">test-network</span></code>目录进行操作。
+如果你按照说明<a class="reference external" href="install.html">安装示例，二进制文件和Docker映像</a>，
+您可以在<code class="docutils literal notranslate"><span class="pre">fabric-samples</span></code>代码库的<code class="docutils literal notranslate"><span class="pre">bin</span></code>文件夹中找到<code class="docutils literal notranslate"><span class="pre">peer</span></code>二进制文件。
+使用以下命令将这些二进制文件添加到您的CLI路径：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PATH=${PWD}/../bin:$PATH
+</pre></div>
+</div>
+<p>您还需要将<code class="docutils literal notranslate"><span class="pre">fabric-samples</span></code>代码库中的<code class="docutils literal notranslate"><span class="pre">FABRIC_CFG_PATH</span></code>设置为指向其中的<code class="docutils literal notranslate"><span class="pre">core.yaml</span></code>文件：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export FABRIC_CFG_PATH=$PWD/../config/
+</pre></div>
+</div>
+<p>现在，您可以设置环境变量，以允许您作为Org1操作<code class="docutils literal notranslate"><span class="pre">peer</span></code> CLI：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Environment variables for Org1
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID=&quot;Org1MSP&quot;
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">CORE_PEER_TLS_ROOTCERT_FILE</span></code>和<code class="docutils literal notranslate"><span class="pre">CORE_PEER_MSPCONFIGPATH</span></code>环境变量指向Org1的<code class="docutils literal notranslate"><span class="pre">organizations</span></code>文件夹中的的加密材料。
+如果您使用<code class="docutils literal notranslate"><span class="pre">./network.sh</span> <span class="pre">deployCC</span></code>安装和启动fabcar链码，您现在可以从CLI查询账本。
+运行以下命令以获取已添加到通道账本中的汽车列表：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">peer</span> <span class="n">chaincode</span> <span class="n">query</span> <span class="o">-</span><span class="n">C</span> <span class="n">mychannel</span> <span class="o">-</span><span class="n">n</span> <span class="n">fabcar</span> <span class="o">-</span><span class="n">c</span> <span class="s1">&#39;{&quot;Args&quot;:[&quot;queryAllCars&quot;]}&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="crypto.html" class="btn btn-neutral float-right" title="cryptogen生成证书" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../network.html" class="btn btn-neutral" title="官网教程详解：使用Fabric的测试网络" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

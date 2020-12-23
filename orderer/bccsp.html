@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>获取 BCCSP :blockchain cryptographic service provider &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="重造轮子：Orderer" href="../orderer.html"/>
+        <link rel="next" title="获取 MSP :Membership Service Provider" href="msp.html"/>
+        <link rel="prev" title="初始化日志" href="initlogger.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../orderer.html#id1"><cite>Orderer</cite> 排序节点是什么？</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../orderer.html#id2">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="loadconfig.html">加载orderer.yaml文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="initlogger.html">初始化日志</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">获取 BCCSP :blockchain cryptographic service provider</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fabric-bccsp">Fabric 中 BCCSP 用途是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bccsp">BCCSP 底层调用了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bccsp">重造BCCSP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#">本文源码地址</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="msp.html">获取 MSP :Membership Service Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="operations.html">获取 Operations  : 操作服务</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../orderer.html">重造轮子：<cite>Orderer</cite></a> &raquo;</li>
+        
+      <li>获取 BCCSP :blockchain cryptographic service provider</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/orderer/bccsp.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bccsp-blockchain-cryptographic-service-provider">
+<span id="bccsp-blockchain-cryptographic-service-provider"></span><h1>获取 BCCSP :blockchain cryptographic service provider<a class="headerlink" href="#bccsp-blockchain-cryptographic-service-provider" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fabric-bccsp">
+<span id="fabric-bccsp"></span><h2>Fabric 中 BCCSP 用途是什么？<a class="headerlink" href="#fabric-bccsp" title="Permalink to this headline">¶</a></h2>
+<p>BCCSP（blockchain cryptographic service provider）：称之为区块链加密服务提供者，在Hyperledger Fabric中，BCCSP的主要作用是为Hyperledger Fabric提供加密、签名服务，包括如下：</p>
+<ul class="simple">
+<li>AES：一种分组加密实现算法，Hyperledger Fabric中主要用来对数据做加密解密处理。主要包含：AES128、AES192、AES256。</li>
+<li>ECDSA：一种椭圆曲线加密算法，Hyperledger Fabric中主要用于签名与验签。主要包含：ECDSAP256、ECDSAP384。</li>
+<li>RSA：一种非对称加密算法，是目前使用最广泛的公钥密码体制之一，Hyperledger Fabric中主要用于签名与验签。主要包含：RSA1024、RSA2048、RSA3072、RSA4096。</li>
+<li>HASH：哈希算法。主要包含：SHA256、SHA384、SHA3_256、SHA3_384。</li>
+<li>PKCS11：一套基于硬件的标准安全接口。</li>
+<li>HMAC： 密匙相关的哈希运算消息认证码</li>
+</ul>
+</div>
+<div class="section" id="bccsp">
+<span id="bccsp"></span><h2>BCCSP 底层调用了什么？<a class="headerlink" href="#bccsp" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">factory.GetDefault()</span></code> 调用到最后获取的是 CSP 。
+CSP 最终调用调用的 crypto 包下各种密码算法的实现。
+CSP 是 BCCSP 接口的通用实现，进行密钥的生成、派生、导入、获取、签名、验签、加密、解密等一系列的操作。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// orderer 包main函数，生成第一个BCCSP实例</span>
+<span class="kd">func</span> <span class="nx">Main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">cryptoProvider</span> <span class="o">:=</span> <span class="nx">factory</span><span class="p">.</span><span class="nx">GetDefault</span><span class="p">()</span> <span class="c1">// 获取默认的BCCSP</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="c1">// bccsp 包的 默认工厂返回了SWFactory</span>
+<span class="kd">func</span> <span class="nx">GetDefault</span><span class="p">()</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">BCCSP</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">bootBCCSP</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="p">(</span><span class="o">&amp;</span><span class="nx">SWFactory</span><span class="p">{}).</span><span class="nx">Get</span><span class="p">(</span><span class="nx">GetDefaultOpts</span><span class="p">())</span>
+    <span class="o">...</span> 
+<span class="p">}</span>
+<span class="c1">//  SWFactory 根据配置生成并配置CSP</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="o">*</span><span class="nx">SWFactory</span><span class="p">)</span> <span class="nx">Get</span><span class="p">(</span><span class="nx">config</span> <span class="o">*</span><span class="nx">FactoryOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">BCCSP</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">sw</span><span class="p">.</span><span class="nx">NewWithParams</span><span class="p">(</span><span class="nx">swOpts</span><span class="p">.</span><span class="nx">SecLevel</span><span class="p">,</span> <span class="nx">swOpts</span><span class="p">.</span><span class="nx">HashFamily</span><span class="p">,</span> <span class="nx">ks</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// SWFactory 根据配置生成并配置CSP</span>
+<span class="kd">func</span> <span class="nx">NewWithParams</span><span class="p">(</span><span class="nx">securityLevel</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">hashFamily</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">keyStore</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">KeyStore</span><span class="p">)</span> <span class="p">(</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">BCCSP</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 创建一个CSP实例</span>
+    <span class="nx">swbccsp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">New</span><span class="p">(</span><span class="nx">keyStore</span><span class="p">)</span>
+
+   <span class="c1">//************* 以下代码传入 crypto 包的密码算法实现  **************** //</span>
+
+    <span class="c1">// Set the Encryptors 设置加密器</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aesPrivateKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aescbcpkcs7Encryptor</span><span class="p">{})</span>
+
+    <span class="c1">// Set the Decryptors 设置解密器</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aesPrivateKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aescbcpkcs7Decryptor</span><span class="p">{})</span>
+
+    <span class="c1">// Set the Signers 设置签名者</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">ecdsaPrivateKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaSigner</span><span class="p">{})</span>
+
+    <span class="c1">// Set the Verifiers 设置验证者</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">ecdsaPrivateKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaPrivateKeyVerifier</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">ecdsaPublicKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaPublicKeyKeyVerifier</span><span class="p">{})</span>
+
+    <span class="c1">// Set the Hashers 设置hash算法</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">SHAOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">hasher</span><span class="p">{</span><span class="nx">hash</span><span class="p">:</span> <span class="nx">conf</span><span class="p">.</span><span class="nx">hashFunction</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">SHA256Opts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">hasher</span><span class="p">{</span><span class="nx">hash</span><span class="p">:</span> <span class="nx">sha256</span><span class="p">.</span><span class="nx">New</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">SHA384Opts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">hasher</span><span class="p">{</span><span class="nx">hash</span><span class="p">:</span> <span class="nx">sha512</span><span class="p">.</span><span class="nx">New384</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">SHA3_256Opts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">hasher</span><span class="p">{</span><span class="nx">hash</span><span class="p">:</span> <span class="nx">sha3</span><span class="p">.</span><span class="nx">New256</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">SHA3_384Opts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">hasher</span><span class="p">{</span><span class="nx">hash</span><span class="p">:</span> <span class="nx">sha3</span><span class="p">.</span><span class="nx">New384</span><span class="p">})</span>
+
+    <span class="c1">// Set the key generators 设置秘钥生成器</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">ECDSAKeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaKeyGenerator</span><span class="p">{</span><span class="nx">curve</span><span class="p">:</span> <span class="nx">conf</span><span class="p">.</span><span class="nx">ellipticCurve</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">ECDSAP256KeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaKeyGenerator</span><span class="p">{</span><span class="nx">curve</span><span class="p">:</span> <span class="nx">elliptic</span><span class="p">.</span><span class="nx">P256</span><span class="p">()})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">ECDSAP384KeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaKeyGenerator</span><span class="p">{</span><span class="nx">curve</span><span class="p">:</span> <span class="nx">elliptic</span><span class="p">.</span><span class="nx">P384</span><span class="p">()})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">AESKeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aesKeyGenerator</span><span class="p">{</span><span class="nx">length</span><span class="p">:</span> <span class="nx">conf</span><span class="p">.</span><span class="nx">aesBitLength</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">AES256KeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aesKeyGenerator</span><span class="p">{</span><span class="nx">length</span><span class="p">:</span> <span class="mi">32</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">AES192KeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aesKeyGenerator</span><span class="p">{</span><span class="nx">length</span><span class="p">:</span> <span class="mi">24</span><span class="p">})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">AES128KeyGenOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aesKeyGenerator</span><span class="p">{</span><span class="nx">length</span><span class="p">:</span> <span class="mi">16</span><span class="p">})</span>
+
+    <span class="c1">// Set the key deriver 设置秘钥派生器</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">ecdsaPrivateKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaPrivateKeyKeyDeriver</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">ecdsaPublicKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaPublicKeyKeyDeriver</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">aesPrivateKey</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aesPrivateKeyKeyDeriver</span><span class="p">{</span><span class="nx">conf</span><span class="p">:</span> <span class="nx">conf</span><span class="p">})</span>
+
+    <span class="c1">// Set the key importers 设置秘钥导入器</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">AES256ImportKeyOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">aes256ImportKeyOptsKeyImporter</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">HMACImportKeyOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">hmacImportKeyOptsKeyImporter</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">ECDSAPKIXPublicKeyImportOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaPKIXPublicKeyImportOptsKeyImporter</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">ECDSAPrivateKeyImportOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaPrivateKeyImportOptsKeyImporter</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">ECDSAGoPublicKeyImportOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">ecdsaGoPublicKeyImportOptsKeyImporter</span><span class="p">{})</span>
+    <span class="nx">swbccsp</span><span class="p">.</span><span class="nx">AddWrapper</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">TypeOf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">X509PublicKeyImportOpts</span><span class="p">{}),</span> <span class="o">&amp;</span><span class="nx">x509PublicKeyImportOptsKeyImporter</span><span class="p">{</span><span class="nx">bccsp</span><span class="p">:</span> <span class="nx">swbccsp</span><span class="p">})</span>
+
+<span class="p">}</span>
+
+
+<span class="c1">// 生成CSP函数代码</span>
+<span class="kd">func</span> <span class="nx">New</span><span class="p">(</span><span class="nx">keyStore</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">KeyStore</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">CSP</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">csp</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">CSP</span><span class="p">{</span><span class="nx">keyStore</span><span class="p">,</span>
+        <span class="nx">keyGenerators</span><span class="p">,</span> <span class="nx">keyDerivers</span><span class="p">,</span> <span class="nx">keyImporters</span><span class="p">,</span> <span class="nx">encryptors</span><span class="p">,</span>
+        <span class="nx">decryptors</span><span class="p">,</span> <span class="nx">signers</span><span class="p">,</span> <span class="nx">verifiers</span><span class="p">,</span> <span class="nx">hashers</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bccsp">
+<span id="id1"></span><h2>重造BCCSP<a class="headerlink" href="#bccsp" title="Permalink to this headline">¶</a></h2>
+<p>目前只使用了CSP，故只需要完成CSP相关的代码即可。
+将Hyperledger Fabric的SWFactory 和CSP代码加入工程。</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ make orderer
+$ docker run -v <span class="nv">$PWD</span>/build/bin:/usr/local/bin  -it --rm hyperledger/fabric-orderer:2.2 /bin/sh
+$ orderer
+...
+打印默认CPS配置
+</pre></div>
+</div>
+</div>
+<div class="section" id="">
+<span id="id2"></span><h2>本文源码地址<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h2>
+<p>3.0代码包含BCCSP和MSP的实现。
+https://github.com/ke-chain/fabric/tree/v3.0</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="msp.html" class="btn btn-neutral float-right" title="获取 MSP :Membership Service Provider" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="initlogger.html" class="btn btn-neutral" title="初始化日志" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

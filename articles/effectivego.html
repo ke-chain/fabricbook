@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>effective go 对 Fabric 的影响 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>effective go 对 Fabric 的影响</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/articles/effectivego.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="effective-go-fabric">
+<span id="effective-go-fabric"></span><h1>effective go 对 Fabric 的影响<a class="headerlink" href="#effective-go-fabric" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="names">
+<span id="names"></span><h2>Names 命名<a class="headerlink" href="#names" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="">
+<span id="id1"></span><h3>包名<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>用于创建 ring.Ring 的新实例的函数（这就是 Go 中的构造函数）一般会称之为 NewRing，但由于 Ring 是该包所导出的唯一类型，且该包也叫 ring，因此它可以只叫做 New，它跟在包的后面，就像 ring.New。摘自 effective go ： 包名</div></blockquote>
+<p>在 Fabric 的代码代码结构中，一个包中弱只有一个构造函数，则名称为New。如果一个包有多个构造函数，则会使用New+结构体名称 的方式。
+例如 bccsp/idemix 目录下只有一个构造函数，故构造函数直接命名为 New 。
+而 bccsp/idemix/handlers 有多个构造函数，则命名为 NewIssuerSecretKey ，NewIssuerPublicKey 等。</p>
+</div>
+<div class="section" id="">
+<span id="id2"></span><h3>获取器<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>Go 并不对获取器（getter）和设置器（setter）提供自动支持。 你应当自己提供获取器和设置器，通常很值得这样做，但若要将 Get 放到获取器的名字中，既不符合习惯，也没有必要。若你有个名为 owner （小写，未导出）的字段，其获取器应当名为 Owner（大写，可导出）而非 GetOwner。大写字母即为可导出的这种规定为区分方法和字段提供了便利。 若要提供设置器方法，SetOwner 是个不错的选择。   摘自 effective go ： 获取器
+摘自 effective go ： 获取器</div></blockquote>
+<p>编程中为了控制私有字段的访问，经常会对私有字段 包装一个获取器 Getters 和设置器 Setters。</p>
+<p>fabric 代码中有这样的例子：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="p">(</span>
+    <span class="c1">// identityUsageThreshold sets the maximum time that an identity</span>
+    <span class="c1">// can not be used to verify some signature before it will be deleted</span>
+    <span class="nx">usageThreshold</span> <span class="p">=</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nx">SetIdentityUsageThreshold</span><span class="p">(</span><span class="nx">duration</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">atomic</span><span class="p">.</span><span class="nx">StoreInt64</span><span class="p">((</span><span class="o">*</span><span class="kt">int64</span><span class="p">)(</span><span class="o">&amp;</span><span class="nx">usageThreshold</span><span class="p">),</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">duration</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1">// Server returns the grpc.Server for the GRPCServer instance</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">gServer</span> <span class="o">*</span><span class="nx">GRPCServer</span><span class="p">)</span> <span class="nx">Server</span><span class="p">()</span> <span class="o">*</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">Server</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">gServer</span><span class="p">.</span><span class="nx">server</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="">
+<span id="id3"></span><h3>接口名<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>按照约定，只包含一个方法的接口应当以该方法的名称加上 - er 后缀来命名，如 Reader、Writer、 Formatter、CloseNotifier 等。请将字符串转换方法命名为 String 而非 ToString。 摘自 effective go ： 接口名
+摘自 effective go ： 接口名</div></blockquote>
+<p>在 Fabric 字符串转换方法命名都为 String 。</p>
+<p>在 Fabric 中并没有全按照上述命名，有多个方法的接口同样 加上 - er 后缀来命名。
+bccsp/sw/internals.go 中的例子:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Signer is a BCCSP-like interface that provides signing algorithms</span>
+<span class="kd">type</span> <span class="nx">Signer</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">Sign</span><span class="p">(</span><span class="nx">k</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">Key</span><span class="p">,</span> <span class="nx">digest</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">opts</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">SignerOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">signature</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Verifier is a BCCSP-like interface that provides verifying algorithms</span>
+<span class="kd">type</span> <span class="nx">Verifier</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">Verify</span><span class="p">(</span><span class="nx">k</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">Key</span><span class="p">,</span> <span class="nx">signature</span><span class="p">,</span> <span class="nx">digest</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">opts</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">SignerOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">valid</span> <span class="kt">bool</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Hasher is a BCCSP-like interface that provides hash algorithms</span>
+<span class="kd">type</span> <span class="nx">Hasher</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nx">Hash</span><span class="p">(</span><span class="nx">msg</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">opts</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">HashOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">hash</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+    <span class="nx">GetHash</span><span class="p">(</span><span class="nx">opts</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">HashOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">h</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">Hash</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="">
+<span id="id4"></span><h3>驼峰记法<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<p>Fabric 的方法名和字段都是按驼峰记法写的。文件名则是全部小写。
+比如 结构体名称为：DeliverClient 文件名则为：deliverclient.go</p>
+</div>
+</div>
+<div class="section" id="semicolons">
+<span id="semicolons"></span><h2>Semicolons 分号<a class="headerlink" href="#semicolons" title="Permalink to this headline">¶</a></h2>
+<p>go 会在数字或常量或者 break， continue， fallthrough， return， ++ ，– ，)， }， 这些符号后加上分号。
+gofmt会自动帮忙处理，如果出错编译也会提示。</p>
+</div>
+<div class="section" id="control-structures">
+<span id="control-structures"></span><h2>Control structures 控制结构<a class="headerlink" href="#control-structures" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="if">
+<span id="if"></span><h3>if<a class="headerlink" href="#if" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>由于 if 和 switch 可接受初始化语句， 因此用它们来设置局部变量十分常见。
+在 Go 的库中，你会发现若 if 语句不会执行到下一条语句时，亦即其执行体 以 break、continue、goto 或 return 结束时，不必要的 else 会被省略。
+摘自 effective go ： If</div></blockquote>
+<p>Fabric中有大量类似使用，例子如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span>    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">is</span><span class="p">.</span><span class="nx">mcs</span><span class="p">.</span><span class="nx">ValidateIdentity</span><span class="p">(</span><span class="nx">identity</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="">
+<span id="id5"></span><h3>重新声明与再次赋值<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>在满足下列条件时，已被声明的变量 v 可出现在:= 声明中</p>
+<ul class="simple">
+<li>本次声明与已声明的 v 处于同一作用域中（若 v 已在外层作用域中声明过，则此次声明会创建一个新的变量 §），</li>
+<li>在初始化中与其类型相应的值才能赋予 v，且</li>
+<li>在此次声明中至少另有一个变量是新声明的。
+摘自 effective go ： 重新声明与再次赋值</li>
+</ul>
+</div></blockquote>
+<p>根据以上条件以下函数编译时正确的:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">f</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">)</span>
+    <span class="nx">d</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">f</span><span class="p">.</span><span class="nx">Stat</span><span class="p">()</span>
+
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">f</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">d</span><span class="p">)</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="for">
+<span id="for"></span><h3>for<a class="headerlink" href="#for" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>Go 的 for 循环类似于 C，但却不尽相同。它统一了 for 和 while，不再有 do-while 了。它有三种形式，但只有一种需要分号。
+摘自 effective go ： for</div></blockquote>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Like a C for</span>
+<span class="k">for</span> <span class="nx">init</span><span class="p">;</span> <span class="nx">condition</span><span class="p">;</span> <span class="nx">post</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// Like a C while</span>
+<span class="k">for</span> <span class="nx">condition</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// Like a C for(;;)</span>
+<span class="k">for</span> <span class="p">{</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>遍历数组还有 rang 可以使用:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">oldMap</span> <span class="p">{</span>
+    <span class="nx">newMap</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">value</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>for 的使用非常频繁和常见，故就不举例了。</p>
+</div>
+<div class="section" id="switch">
+<span id="switch"></span><h3>Switch<a class="headerlink" href="#switch" title="Permalink to this headline">¶</a></h3>
+<p>Switch 的三个特殊用法在 Fabric 中的例子</p>
+<blockquote>
+<div>“若 switch 后面没有表达式，它将匹配 true，因此，我们可以将 if-else-if-else 链写成一个 switch，这也更符合 Go 的风格”</div></blockquote>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span>    <span class="k">switch</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nx">swOpts</span><span class="p">.</span><span class="nx">Ephemeral</span><span class="p">:</span>
+        <span class="nx">ks</span> <span class="p">=</span> <span class="nx">sw</span><span class="p">.</span><span class="nx">NewDummyKeyStore</span><span class="p">()</span>
+    <span class="k">case</span> <span class="nx">swOpts</span><span class="p">.</span><span class="nx">FileKeystore</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">:</span>
+        <span class="nx">fks</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">sw</span><span class="p">.</span><span class="nx">NewFileBasedKeyStore</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span> <span class="nx">swOpts</span><span class="p">.</span><span class="nx">FileKeystore</span><span class="p">.</span><span class="nx">KeyStorePath</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">Wrapf</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="s">&quot;Failed to initialize software key store&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="nx">ks</span> <span class="p">=</span> <span class="nx">fks</span>
+    <span class="k">case</span> <span class="nx">swOpts</span><span class="p">.</span><span class="nx">InmemKeystore</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">:</span>
+        <span class="nx">ks</span> <span class="p">=</span> <span class="nx">sw</span><span class="p">.</span><span class="nx">NewInMemoryKeyStore</span><span class="p">()</span>
+    <span class="k">default</span><span class="p">:</span>
+        <span class="c1">// Default to ephemeral key store</span>
+        <span class="nx">ks</span> <span class="p">=</span> <span class="nx">sw</span><span class="p">.</span><span class="nx">NewDummyKeyStore</span><span class="p">()</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<div>“case 可通过逗号分隔来列举相同的处理条件。”</div></blockquote>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">nameToLevel</span><span class="p">(</span><span class="nx">level</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">zapcore</span><span class="p">.</span><span class="nx">Level</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="nx">level</span> <span class="p">{</span>  
+    <span class="o">...</span>
+    <span class="k">case</span> <span class="s">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s">&quot;WARN&quot;</span><span class="p">,</span> <span class="s">&quot;warning&quot;</span><span class="p">,</span> <span class="s">&quot;warn&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nx">zapcore</span><span class="p">.</span><span class="nx">WarnLevel</span><span class="p">,</span> <span class="kc">nil</span>
+    <span class="o">...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<div>“在 Go 中，我们只需将标签放置到循环外，然后 “蹦” 到那里即可。”</div></blockquote>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">ord</span> <span class="o">*</span><span class="nx">Orderer</span><span class="p">)</span> <span class="nx">completeInitialization</span><span class="p">(</span><span class="nx">configDir</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">loop</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="p">{</span>
+        <span class="o">...</span>
+        <span class="k">default</span><span class="p">:</span>
+            <span class="k">break</span> <span class="nx">loop</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="type-switch">
+<span id="type-switch"></span><h3>Type switch<a class="headerlink" href="#type-switch" title="Permalink to this headline">¶</a></h3>
+<p>Type switch 在Fabric的例子</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">userSecreKeySignerMultiplexer</span><span class="p">)</span> <span class="nx">Sign</span><span class="p">(</span><span class="nx">k</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">Key</span><span class="p">,</span> <span class="nx">digest</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">opts</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">SignerOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">signature</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="nx">opts</span><span class="p">.(</span><span class="kd">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">*</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">IdemixSignerOpts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">signer</span><span class="p">.</span><span class="nx">Sign</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span> <span class="nx">digest</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">*</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">IdemixNymSignerOpts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">nymSigner</span><span class="p">.</span><span class="nx">Sign</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span> <span class="nx">digest</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">*</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">IdemixCredentialRequestSignerOpts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">credentialRequestSigner</span><span class="p">.</span><span class="nx">Sign</span><span class="p">(</span><span class="nx">k</span><span class="p">,</span> <span class="nx">digest</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+    <span class="k">default</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">&quot;invalid opts, expected *bccsp.IdemixSignerOpt or *bccsp.IdemixNymSignerOpts or *bccsp.IdemixCredentialRequestSignerOpts&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="functions">
+<span id="functions"></span><h2>Functions 函数<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="multiple-return-values-and-named-result-parameters">
+<span id="multiple-return-values-and-named-result-parameters"></span><h3>Multiple return values  and Named result parameters<a class="headerlink" href="#multiple-return-values-and-named-result-parameters" title="Permalink to this headline">¶</a></h3>
+<p>函数多返回值和可命名结果形参的例子如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">userSecreKeySignerMultiplexer</span><span class="p">)</span> <span class="nx">Sign</span><span class="p">(</span><span class="nx">k</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">Key</span><span class="p">,</span> <span class="nx">digest</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">opts</span> <span class="nx">bccsp</span><span class="p">.</span><span class="nx">SignerOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">signature</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="defer">
+<span id="defer"></span><h3>Defer<a class="headerlink" href="#defer" title="Permalink to this headline">¶</a></h3>
+<p>defer 的两个需要注意的特性：</p>
+<ol class="simple">
+<li>defer 的函数中的实参是马上执行的</li>
+<li>多个 defer 按照后进先出( LIFO )的原则执行</li>
+</ol>
+<p>effective go 中的 defer例子简化版：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">trace</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;entering:&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">s</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">un</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;leaving:&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">defer</span> <span class="nx">un</span><span class="p">(</span><span class="nx">trace</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">))</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;in b&quot;</span><span class="p">)</span>
+    <span class="k">defer</span> <span class="nx">un</span><span class="p">(</span><span class="nx">trace</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">))</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;in a&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="cm">/*  结果如下</span>
+<span class="cm">entering: b</span>
+<span class="cm">in b</span>
+<span class="cm">entering: a</span>
+<span class="cm">in a</span>
+<span class="cm">leaving: a</span>
+<span class="cm">leaving: b</span>
+
+<span class="cm">*/</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="data">
+<span id="data"></span><h2>Data 数据<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="allocation-with-new">
+<span id="allocation-with-new"></span><h3>Allocation with new<a class="headerlink" href="#allocation-with-new" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>“让我们先来看看 new。这是个用来分配内存的内建函数， 但与其它语言中的同名函数不同，它不会初始化内存，只会将内存置零。”</div></blockquote>
+<p>需要注意的是 new 返回了对像的指针。</p>
+<p>Fabric 中大量使用了 new 构造对像，例子如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">ipk</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">cryptolib</span><span class="p">.</span><span class="nx">IssuerPublicKey</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="constructors-and-composite-literals">
+<span id="constructors-and-composite-literals"></span><h3>Constructors and composite literals 构造函数与复合字面<a class="headerlink" href="#constructors-and-composite-literals" title="Permalink to this headline">¶</a></h3>
+<p>相对于 new 构造函数中复合字面来构建对像更为常见：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// NewApplicationOrgConfig creates a new config for an application org</span>
+<span class="kd">func</span> <span class="nx">NewApplicationOrgConfig</span><span class="p">(</span><span class="nx">id</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">orgGroup</span> <span class="o">*</span><span class="nx">cb</span><span class="p">.</span><span class="nx">ConfigGroup</span><span class="p">,</span> <span class="nx">mspConfig</span> <span class="o">*</span><span class="nx">MSPConfigHandler</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">ApplicationOrgConfig</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">aoc</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">ApplicationOrgConfig</span><span class="p">{</span>
+        <span class="nx">name</span><span class="p">:</span>   <span class="nx">id</span><span class="p">,</span>
+        <span class="nx">protos</span><span class="p">:</span> <span class="nx">protos</span><span class="p">,</span>
+        <span class="nx">OrganizationConfig</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">OrganizationConfig</span><span class="p">{</span>
+            <span class="nx">name</span><span class="p">:</span>             <span class="nx">id</span><span class="p">,</span>
+            <span class="nx">protos</span><span class="p">:</span>           <span class="nx">orgProtos</span><span class="p">,</span>
+            <span class="nx">mspConfigHandler</span><span class="p">:</span> <span class="nx">mspConfig</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="o">...</span>
+    <span class="k">return</span> <span class="nx">aoc</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>需要注意的是  new(File) 和 &amp;File{} 是等价的。</p>
+</div>
+<div class="section" id="allocation-with-make-make">
+<span id="allocation-with-make-make"></span><h3>Allocation with make  make 分配<a class="headerlink" href="#allocation-with-make-make" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>“内建函数 make(T, args) 的目的不同于 new(T)。它只用于创建切片、映射和信道，并返回类型为 T（而非 *T）的一个已初始化 （而非置零）的值。 出现这种用差异的原因在于，这三种类型本质上为引用数据类型，它们在使用前必须初始化。 例如，切片是一个具有三项内容的描述符，包含一个指向（数组内部）数据的指针、长度以及容量， 在这三项被初始化之前，该切片为 nil。对于切片、映射和信道，make 用于初始化其内部的数据结构并准备好将要使用的值”</div></blockquote>
+<p>make 一般用来构建 slices, maps, and channels 对像 而且非常常见， 在Fabric 中大量大使用。就不举例了。</p>
+<p>需要注意的是 make  返回是结构体对像，而不是指针。</p>
+</div>
+<div class="section" id="arrays">
+<span id="arrays"></span><h3>Arrays<a class="headerlink" href="#arrays" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>数组的特性：</p>
+<ul class="simple">
+<li>数组是值。将一个数组赋予另一个数组会复制其所有元素。</li>
+<li>特别地，若将某个数组传入某个函数，它将接收到该数组的一份副本而非指针。</li>
+<li>数组的大小是其类型的一部分。类型 [10]int 和 [20]int 是不同的。</li>
+</ul>
+</div></blockquote>
+<p>Fabric 数组的使用非常少，主要还是用 slices 。
+需要注意的是 [10]int 是数组，[]int 就是 slices 。两个看起来比较像。</p>
+</div>
+<div class="section" id="slices">
+<span id="slices"></span><h3>Slices 切片<a class="headerlink" href="#slices" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>“切片保存了对底层数组的引用，若你将某个切片赋予另一个切片，它们会引用同一个数组。 若某个函数将一个切片作为参数传入，则它对该切片元素的修改对调用者而言同样可见， 这可以理解为传递了底层数组的指针。”</div></blockquote>
+<p>Fabric 大量使用了 Slices 。例子如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span> <span class="nx">ecdsaPrivateKey</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">ski</span> <span class="p">[]</span><span class="kt">byte</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>需要注意的是 Slices 的传递，相当于传递底层数组的指针。故作为参数传入函数时，函数中对于 Slices 的修改也会改变原 Slices 。</p>
+</div>
+<div class="section" id="two-dimensional-slices">
+<span id="two-dimensional-slices"></span><h3>Two-dimensional slices 而为切片<a class="headerlink" href="#two-dimensional-slices" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>若切片会增长或收缩， 就应该通过独立分配来避免覆盖下一行；若不会，用单次分配来构造对象会更加高效。 以下是这两种方法的大概代码，仅供参考。首先是一次一行的：</p>
+<p>// 分配顶层切片。
+picture := make([][]uint8, YSize) // 每 y 个单元一行。
+// 遍历行，为每一行都分配切片
+for i := range picture {
+picture[i] = make([]uint8, XSize)
+}
+And now as one allocation, sliced into lines:</p>
+<p>现在是一次分配，对行进行切片：
+// 分配顶层切片，和前面一样。
+picture := make([][]uint8, YSize) // 每 y 个单元一行。
+// 分配一个大的切片来保存所有像素
+pixels := make([]uint8, XSize*YSize) // 拥有类型 []uint8，尽管图片是 [][]uint8.
+// 遍历行，从剩余像素切片的前面切出每行来。
+for i := range picture {
+picture[i], pixels = pixels[:XSize], pixels[XSize:]
+}</p>
+</div></blockquote>
+<p>Fabric 大量使用了 <code class="docutils literal notranslate"><span class="pre">[][]interface{}</span></code> 这样的形式用于模拟数据测试。</p>
+</div>
+<div class="section" id="maps">
+<span id="maps"></span><h3>Maps 映射<a class="headerlink" href="#maps" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>映射是方便而强大的内建数据结构，它可以关联不同类型的值。其键可以是任何相等性操作符支持的类型， 如整数、浮点数、复数、字符串、指针、接口（只要其动态类型支持相等性判断）、结构以及数组。 切片不能用作映射键，因为它们的相等性还未定义。与切片一样，映射也是引用类型。 若将映射传入函数中，并更改了该映射的内容，则此修改对调用者同样可见。</div></blockquote>
+<p>map的常见操作如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// 构建 map 实例</span>
+<span class="kd">var</span> <span class="nx">timeZone</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">{</span>
+    <span class="s">&quot;UTC&quot;</span><span class="p">:</span>  <span class="mi">0</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span>
+    <span class="s">&quot;EST&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span>
+    <span class="s">&quot;CST&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">6</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span>
+    <span class="s">&quot;MST&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">7</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span>
+    <span class="s">&quot;PST&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">8</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">//  取值</span>
+<span class="nx">offset</span> <span class="o">:=</span> <span class="nx">timeZone</span><span class="p">[</span><span class="s">&quot;EST&quot;</span><span class="p">]</span>
+<span class="c1">// 判断是否存在</span>
+<span class="nx">seconds</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">timeZone</span><span class="p">[</span><span class="nx">tz</span><span class="p">]</span>
+<span class="c1">// 删除</span>
+<span class="nb">delete</span><span class="p">(</span><span class="nx">timeZone</span><span class="p">,</span> <span class="s">&quot;PDT&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>需要注意是 map 与切片一样， 都是持有了底层数据结构的引用。 上面的中文翻译有点问题，不是引用类型。
+原文为 Like slices, maps hold references to an underlying data structure.</p>
+</div>
+<div class="section" id="printing">
+<span id="printing"></span><h3>Printing<a class="headerlink" href="#printing" title="Permalink to this headline">¶</a></h3>
+<p>常见打印的函数:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Hello %d\n&quot;</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprint</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdout</span><span class="p">,</span> <span class="s">&quot;Hello &quot;</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="s">&quot;\n&quot;</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;Hello&quot;</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprint</span><span class="p">(</span><span class="s">&quot;Hello &quot;</span><span class="p">,</span> <span class="mi">23</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>打印在Fabric 中基本都封装进了 logger 。
+需要注意的是 Fprintf ，Printf 使用了反射，大量使用的话会降低程序性能。</p>
+<div class="section" id="append">
+<span id="append"></span><h4>Append<a class="headerlink" href="#append" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div>append 的定义为：func append(slice []T, elements …T) []T
+其中的 T 为任意给定类型的占位符。实际上，你无法在 Go 中编写一个类型 T 由调用者决定的函数。这也就是为何 append 为内建函数的原因：它需要编译器的支持。</div></blockquote>
+<p>append 的常见用法：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span>x := []int{1,2,3}
+y := []int{4,5,6}
+x = append(x, 4, 5, 6)
+x = append(x, y...)”
+
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="initialization">
+<span id="initialization"></span><h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="constants">
+<span id="constants"></span><h3>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>Go 中的常量就是不变量。它们在编译时创建，即便它们可能是函数中定义的局部变量。 常量只能是数字、字符（符文）、字符串或布尔值。由于编译时的限制， 定义它们的表达式必须也是可被编译器求值的常量表达式。例如 1&lt;&lt;3 就是一个常量表达式，而 math.Sin(math.Pi/4) 则不是，因为对 math.Sin 的函数调用在运行时才会发生。
+在 Go 中，枚举常量使用枚举器 iota 创建。由于 iota 可为表达式的一部分，而表达式可以被隐式地重复，这样也就更容易构建复杂的值的集合了。</div></blockquote>
+<p>需要注意是 1+iota  的枚举值为 1,2,3… 而 1 &lt;&lt; iota的值为 1,2,4…</p>
+<div class="section" id="variables">
+<span id="variables"></span><h4>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h4>
+<p>常见变量初始化如下:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="p">(</span>
+    <span class="nx">home</span>   <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="s">&quot;HOME&quot;</span><span class="p">)</span>
+    <span class="nx">user</span>   <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="s">&quot;USER&quot;</span><span class="p">)</span>
+    <span class="nx">gopath</span> <span class="p">=</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="s">&quot;GOPATH&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-init-function">
+<span id="the-init-function"></span><h3>The init function<a class="headerlink" href="#the-init-function" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>每个源文件都可以通过定义自己的无参数 init 函数来设置一些必要的状态。 （其实每个文件都可以拥有多个 init 函数。）而它的结束就意味着初始化结束： 只有该包中的所有变量声明都通过它们的初始化器求值后 init 才会被调用， 而那些 init 只有在所有已导入的包都被初始化后才会被求值。</div></blockquote>
+<p>初始化顺序为导入依赖包-&gt;依赖包 const -&gt;依赖包 var -&gt;依赖包 init -&gt; const -&gt; var-&gt; init 。</p>
+</div>
+</div>
+<div class="section" id="methods">
+<span id="methods"></span><h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pointers-vs-values">
+<span id="pointers-vs-values"></span><h3>Pointers vs. Values<a class="headerlink" href="#pointers-vs-values" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>以指针或值为接收者的区别在于：值方法可通过指针和值调用， 而指针方法只能通过指针来调用。
+之所以会有这条规则是因为指针方法可以修改接收者；通过值调用它们会导致方法接收到该值的副本， 因此任何修改都将被丢弃，因此该语言不允许这种错误。不过有个方便的例外：若该值是可寻址的， 那么该语言就会自动插入取址操作符来对付一般的通过值调用的指针方法。</div></blockquote>
+<p>Fabric 中大多方法传递的是指针。因为这样调用方法可以直接在对像上操作而不需要再拷贝一份。</p>
+</div>
+</div>
+<div class="section" id="interfaces-and-other-types">
+<span id="interfaces-and-other-types"></span><h2>Interfaces and other types<a class="headerlink" href="#interfaces-and-other-types" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="">
+<span id="id6"></span><h3>接口<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>Go 中的接口为指定对象的行为提供了一种方法：如果某样东西可以完成这个， 那么它就可以用在这里。</div></blockquote>
+<p>需要注意的是 go 不要显式实现该结构，只需要有接口对应的方法即可。</p>
+</div>
+<div class="section" id="conversions">
+<span id="conversions"></span><h3>Conversions<a class="headerlink" href="#conversions" title="Permalink to this headline">¶</a></h3>
+<p>effective go案例如下:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span> <span class="nx">Sequence</span> <span class="p">[]</span><span class="kt">int</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="nx">Sequence</span><span class="p">)</span> <span class="nx">String</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="nx">sort</span><span class="p">.</span><span class="nx">Sort</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprint</span><span class="p">([]</span><span class="nb">int</span><span class="p">(</span><span class="nx">s</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>需要注意的是转换过程并不会创建新值，它只是值暂让现有的时看起来有个新类型而已。 （还有些合法转换则会创建新值，如从整数转换为浮点数等。）</p>
+</div>
+<div class="section" id="interface-conversions-and-type-assertions">
+<span id="interface-conversions-and-type-assertions"></span><h3>Interface conversions and type assertions<a class="headerlink" href="#interface-conversions-and-type-assertions" title="Permalink to this headline">¶</a></h3>
+<p>Interface conversions 的语法 ：<code class="docutils literal notranslate"><span class="pre">switch</span> <span class="pre">str</span> <span class="pre">:=</span> <span class="pre">value.(type)</span></code>
+type assertions 的语法 ： <code class="docutils literal notranslate"><span class="pre">str,</span> <span class="pre">ok</span> <span class="pre">:=</span> <span class="pre">value.(string)</span></code></p>
+</div>
+<div class="section" id="">
+<span id="id7"></span><h3>通用性<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>若某种现有的类型仅实现了一个接口，且除此之外并无可导出的方法，则该类型本身就无需导出。 仅导出该接口能让我们更专注于其行为而非实现，其它属性不同的实现则能镜像该原始类型的行为。 这也能够避免为每个通用接口的实例重复编写文档。</div></blockquote>
+<p>这样的设计 Fabric 有很多，例如：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="o">*</span><span class="nx">SWFactory</span><span class="p">)</span> <span class="nx">Get</span><span class="p">(</span><span class="nx">config</span> <span class="o">*</span><span class="nx">FactoryOpts</span><span class="p">)</span> <span class="p">(</span><span class="nx">bccsp</span><span class="p">.</span><span class="nx">BCCSP</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</pre></div>
+</div>
+<p>只返回了接口而不是具体实现。</p>
+</div>
+<div class="section" id="interfaces-and-methods">
+<span id="interfaces-and-methods"></span><h3>Interfaces and methods<a class="headerlink" href="#interfaces-and-methods" title="Permalink to this headline">¶</a></h3>
+<p>结构体，channel ，整数，函数都可以添加方法，实现接口。</p>
+</div>
+</div>
+<div class="section" id="the-blank-identifier">
+<span id="the-blank-identifier"></span><h2>The blank identifier<a class="headerlink" href="#the-blank-identifier" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>它表示只写的值，在需要变量但不需要实际值的地方用作占位符</div></blockquote>
+<div class="section" id="unused-imports-and-variables">
+<span id="unused-imports-and-variables"></span><h3>Unused imports and variables<a class="headerlink" href="#unused-imports-and-variables" title="Permalink to this headline">¶</a></h3>
+<p>一般用来保证顺利编译
+例子：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">ks</span><span class="p">.</span><span class="nx">GetKey</span><span class="p">(</span><span class="nx">ski</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="import-for-side-effect">
+<span id="import-for-side-effect"></span><h3>Import for side effect<a class="headerlink" href="#import-for-side-effect" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>例如，在 net/http/pprof 包的 init 函数中记录了 HTTP 处理程序的调试信息。它有个可导出的 API， 但大部分客户端只需要该处理程序的记录和通过 Web 叶访问数据。只为了其副作用来哦导入该包， 只需将包重命名为空白标识符</div></blockquote>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="p">(</span>
+    <span class="nx">_</span> <span class="s">&quot;net/http/pprof&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="interface-checks">
+<span id="interface-checks"></span><h3>Interface checks<a class="headerlink" href="#interface-checks" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>在这种结构中出现空白标识符，即表示该声明的存在只是为了类型检查。 不过请不要为满足接口就将它用于任何类型。作为约定， 仅当代码中不存在静态类型转换时才能这种声明，毕竟这是种罕见的情况。
+Fabric 的例子：</div></blockquote>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">_</span> <span class="nx">flogging</span><span class="p">.</span><span class="nx">Observer</span> <span class="p">=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">Observer</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="embedding">
+<span id="embedding"></span><h2>Embedding<a class="headerlink" href="#embedding" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>只有接口能被嵌入到接口中
+内嵌类型的方法可以直接引用
+若我们需要直接引用内嵌字段，可以忽略包限定名，直接将该字段的类型名作为字段名
+首先，字段或方法 X 会隐藏该类型中更深层嵌套的其它项 X
+其次，若相同的嵌套层级上出现同名冲突，通常会产生一个错误。</div></blockquote>
+<p>内嵌在 Fabric 的例子不多，一般用于类似 “子类” 的功能:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span> <span class="nx">csp</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="o">*</span><span class="nx">sw</span><span class="p">.</span><span class="nx">CSP</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="concurrency">
+<span id="concurrency"></span><h2>Concurrency<a class="headerlink" href="#concurrency" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="share-by-communicating">
+<span id="share-by-communicating"></span><h3>Share by communicating<a class="headerlink" href="#share-by-communicating" title="Permalink to this headline">¶</a></h3>
+<p>Do not communicate by sharing memory; instead, share memory by communicating.</p>
+</div>
+<div class="section" id="goroutines-and-channels">
+<span id="goroutines-and-channels"></span><h3>Goroutines and Channels<a class="headerlink" href="#goroutines-and-channels" title="Permalink to this headline">¶</a></h3>
+<p>无缓存 channel 案例:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>  <span class="c1">// 分配一个信道</span>
+<span class="c1">// 在 Go 程中启动排序。当它完成后，在信道上发送信号。</span>
+<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">list</span><span class="p">.</span><span class="nx">Sort</span><span class="p">()</span>
+    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">1</span>  <span class="c1">// 发送信号，什么值无所谓。</span>
+<span class="p">}()</span>
+<span class="nx">doSomethingForAWhile</span><span class="p">()</span>
+<span class="o">&lt;-</span><span class="nx">c</span>   <span class="c1">// 等待排序结束，丢弃发来的值。</span>
+</pre></div>
+</div>
+<p>缓存 channel 案例:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">sem</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">MaxOutstanding</span><span class="p">)</span>
+
+<span class="kd">func</span> <span class="nx">Serve</span><span class="p">(</span><span class="nx">queue</span> <span class="kd">chan</span> <span class="o">*</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">req</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">queue</span> <span class="p">{</span>
+        <span class="nx">req</span> <span class="o">:=</span> <span class="nx">req</span> <span class="c1">// 为该 Go 程创建 req 的新实例。</span>
+        <span class="nx">sem</span> <span class="o">&lt;-</span> <span class="mi">1</span>
+        <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">process</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+            <span class="o">&lt;-</span><span class="nx">sem</span>
+        <span class="p">}()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>启动固定数量 goroutine 案例:</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">handle</span><span class="p">(</span><span class="nx">queue</span> <span class="kd">chan</span> <span class="o">*</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">r</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">queue</span> <span class="p">{</span>
+        <span class="nx">process</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">Serve</span><span class="p">(</span><span class="nx">clientRequests</span> <span class="kd">chan</span> <span class="o">*</span><span class="nx">Request</span><span class="p">,</span> <span class="nx">quit</span> <span class="kd">chan</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 启动处理程序</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">MaxOutstanding</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+        <span class="k">go</span> <span class="nx">handle</span><span class="p">(</span><span class="nx">clientRequests</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="o">&lt;-</span><span class="nx">quit</span>  <span class="c1">// 等待通知退出。</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>需要注意的是 for 循环变量共享问题。</p>
+</div>
+<div class="section" id="parallelization">
+<span id="parallelization"></span><h3>Parallelization<a class="headerlink" href="#parallelization" title="Permalink to this headline">¶</a></h3>
+<p>有两种途径可实现，要么 在运行你的工作时将 GOMAXPROCS 环境变量设为你要使用的核心数， 要么导入 runtime 包并调用 runtime.GOMAXPROCS(NCPU)。 runtime.NumCPU() 的值可能很有用，它会返回当前机器的逻辑 CPU 核心数。</p>
+<div class="section" id="a-leaky-buffer">
+<span id="a-leaky-buffer"></span><h4>A leaky buffer<a class="headerlink" href="#a-leaky-buffer" title="Permalink to this headline">¶</a></h4>
+</div>
+</div>
+</div>
+<div class="section" id="errors">
+<span id="errors"></span><h2>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h2>
+<p>Fabric 案例：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">type</span> <span class="nx">IdemixIssuerPublicKeyImporterError</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">Type</span>     <span class="nx">IdemixIIssuerPublicKeyImporterErrorType</span>
+    <span class="nx">ErrorMsg</span> <span class="kt">string</span>
+    <span class="nx">Cause</span>    <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">IdemixIssuerPublicKeyImporterError</span><span class="p">)</span> <span class="nx">Error</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Cause</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s: %s&quot;</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">ErrorMsg</span><span class="p">,</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Cause</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">r</span><span class="p">.</span><span class="nx">ErrorMsg</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="panic">
+<span id="panic"></span><h3>Panic<a class="headerlink" href="#panic" title="Permalink to this headline">¶</a></h3>
+<p>Fabric 案例：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="nb">panic</span><span class="p">(</span><span class="s">&quot;BCCSP Internal error, failed initialization with GetDefaultOpts!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="recover">
+<span id="recover"></span><h3>Recover<a class="headerlink" href="#recover" title="Permalink to this headline">¶</a></h3>
+<p>Fabric 案例：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">r</span> <span class="o">:=</span> <span class="nb">recover</span><span class="p">();</span> <span class="nx">r</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="nx">res</span> <span class="p">=</span> <span class="kc">nil</span>
+            <span class="nx">err</span> <span class="p">=</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;failure [%s]&quot;</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,252 @@
+# 获取 grpcServer  : 远程通信
+
+## Fabric Orderer 中 grpcServer 用途是什么？
+1. RPC 全称 (Remote Procedure Call)，远程过程调用，指的是一台计算机通过网络请求另一台计算机的上服务，从而不需要了解底层网络细节，RPC 是构建在已经存在的协议（TCP/IP，HTTP 等）之上的，RPC 采用的是客户端，服务器模式。
+2. gRPC 是云原生计算基金会（CNCF）项目，gRPC 一开始由 google 开发，是一款语言中立、平台中立的服务间通信框架，使用 gRPC 可以使得客户端像调用本地方法一样，调用远程主机提供的服务。可以在任何地方运行，它使客户端和服务器应用程序能够透明地进行通信，并使构建连接系统变得更加容易。
+
+
+Orderer 只有 2 个 GRPC 接口：
+
+- Broadcast：用来接收客户端提交的待排序交易。
+- Deliver：客户端（包括 Peer 节点）用来从 Orderer 节点获取已经达成一致的区块。
+
+## grpcServer 底层调用了什么？
+
+gprc 建立服务器有三个步骤
+1. 创建 server
+2. server 的注册
+3. 调用 Serve 监听端口并处理请求
+
+#### 创建 server 到底创建了什么
+server 最终的创建了一个 Server 结构体，比较重要的无非就是三个 map 表分别用来存放多个 listener 、connection 和 service。其他字段都是为了实现协议描述或者并发控制的功能。我们重点关注 `m      map[string]*service`。
+service 中主要包含了 MethodDesc 和 StreamDesc 这两个 map 分别存储了 方法 和 流。
+
+```go
+func initializeGrpcServer(conf *localconfig.TopLevel, serverConfig comm.ServerConfig) *comm.GRPCServer {
+    ...
+    grpcServer, err := comm.NewGRPCServerFromListener(lis, serverConfig)
+    ...
+}
+func NewGRPCServerFromListener(listener net.Listener, serverConfig ServerConfig) (*GRPCServer, error) {
+	grpcServer := &GRPCServer{
+		address:  listener.Addr().String(),
+		listener: listener,
+		lock:     &sync.Mutex{},
+    }
+    grpcServer.server = grpc.NewServer(serverOpts...)
+}
+
+func NewServer(opt ...ServerOption) *Server {
+	s := &Server{
+		lis:    make(map[net.Listener]bool),
+		opts:   opts,
+		conns:  make(map[transport.ServerTransport]bool),
+		m:      make(map[string]*service),
+		quit:   grpcsync.NewEvent(),
+		done:   grpcsync.NewEvent(),
+		czData: new(channelzData),
+	}
+}
+
+type Server struct {
+	opts serverOptions
+
+	mu     sync.Mutex // guards following
+	lis    map[net.Listener]bool
+	conns  map[transport.ServerTransport]bool
+	serve  bool
+	drain  bool
+	cv     *sync.Cond          // signaled when connections close for GracefulStop
+	m      map[string]*service // service name -> service info
+	events trace.EventLog
+
+	quit               *grpcsync.Event
+	done               *grpcsync.Event
+	channelzRemoveOnce sync.Once
+	serveWG            sync.WaitGroup // counts active Serve goroutines for GracefulStop
+
+	channelzID int64 // channelz unique identification number
+	czData     *channelzData
+}
+
+
+type service struct {
+	server interface{} // the server for service methods
+	md     map[string]*MethodDesc
+	sd     map[string]*StreamDesc
+	mdata  interface{}
+}
+
+```
+
+#### server 的注册到底做了什么？
+
+主要是把 _AtomicBroadcast_serviceDesc 中的 Streams 和 Methods 注入到 server 的 service map 中。
+
+
+```go
+func Main() {
+    ...
+    ab.RegisterAtomicBroadcastServer(grpcServer.Server(), server)
+    ...
+}
+
+func RegisterAtomicBroadcastServer(s *grpc.Server, srv AtomicBroadcastServer) {
+	s.RegisterService(&_AtomicBroadcast_serviceDesc, srv)
+}
+
+var _AtomicBroadcast_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "orderer.AtomicBroadcast",
+	HandlerType: (*AtomicBroadcastServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Broadcast",
+			Handler:       _AtomicBroadcast_Broadcast_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "Deliver",
+			Handler:       _AtomicBroadcast_Deliver_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "orderer/ab.proto",
+}
+
+
+
+func (s *Server) RegisterService(sd *ServiceDesc, ss interface{}) {
+    ...
+	s.register(sd, ss)
+}
+
+func (s *Server) register(sd *ServiceDesc, ss interface{}) {
+    ...
+	srv := &service{
+		server: ss,
+		md:     make(map[string]*MethodDesc),
+		sd:     make(map[string]*StreamDesc),
+		mdata:  sd.Metadata,
+	}
+	for i := range sd.Methods {
+		d := &sd.Methods[i]
+		srv.md[d.MethodName] = d
+	}
+	for i := range sd.Streams {
+		d := &sd.Streams[i]
+		srv.sd[d.StreamName] = d
+	}
+	s.m[sd.ServiceName] = srv
+}
+
+```
+
+需要注意的是 `s.m[sd.ServiceName] = srv` ，这行注入 srv 的代码对应处理请求的取出 srv 的操作。
+
+#### 调用 Serve 监听端口并处理请求是如何完成的？
+1. server 通过死循环的方式在某一个端口实现监听，然后 client 对这个端口发起连接请求，握手成功后建立连接。
+2. 使用 handleRawConn() 处理 client 发送过来的请求数据。
+3. 根据请求的服务名获取对应 MethodDesc 或 StreamDesc。
+4. 调用其 handler 进行处理。
+5. 回写响应数据。
+
+```go
+  // 启动 server 
+func Main() {
+    ...
+    if err := grpcServer.Start(); err != nil {
+    ...
+}
+  // 启动 server 
+func (gServer *GRPCServer) Start() error {
+    ...
+	return gServer.server.Serve(gServer.listener)
+}
+
+func (s *Server) Serve(lis net.Listener) error {
+    // 1. server 通过死循环的方式在某一个端口实现监听，然后 client 对这个端口发起连接请求，握手成功后建立连接。
+    for {
+        rawConn, err := lis.Accept()
+        ...
+        s.serveWG.Add(1)
+        go func() {
+            // 2. 使用 handleRawConn() 处理 client 发送过来的请求数据。
+            s.handleRawConn(rawConn)
+            s.serveWG.Done()
+        }()
+        }
+}    
+
+func (s *Server) handleRawConn(rawConn net.Conn) {
+    ...
+    // 使用 http2 
+    st := s.newHTTP2Transport(conn, authInfo)
+    ...
+    go func() {
+		s.serveStreams(st)
+		s.removeConn(st)
+    }()
+}
+
+func (s *Server) serveStreams(st transport.ServerTransport) {
+	defer st.Close()
+	var wg sync.WaitGroup
+	st.HandleStreams(func(stream *transport.Stream) {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			s.handleStream(st, stream, s.traceInfo(st, stream))
+		}()
+	}, func(ctx context.Context, method string) context.Context {
+		if !EnableTracing {
+			return ctx
+		}
+		tr := trace.New("grpc.Recv."+methodFamily(method), method)
+		return trace.NewContext(ctx, tr)
+	})
+	wg.Wait()
+}
+
+func (s *Server) handleStream(t transport.ServerTransport, stream *transport.Stream, trInfo *traceInfo) {
+    ...
+	service := sm[:pos]
+	method := sm[pos+1:]
+    // 3. 根据请求的服务名获取对应 MethodDesc 或 StreamDesc。
+    srv, knownService := s.m[service]
+	if knownService {
+		if md, ok := srv.md[method]; ok {
+			s.processUnaryRPC(t, stream, srv, md, trInfo)
+			return
+		}
+		if sd, ok := srv.sd[method]; ok {
+			s.processStreamingRPC(t, stream, srv, sd, trInfo)
+			return
+		}
+    }   
+    ...
+
+}
+
+func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.Stream, srv *service, md *MethodDesc, trInfo *traceInfo) (err error) {
+    ...
+     // 4. 调用其 handler 进行处理。
+    reply, appErr := md.Handler(srv.server, ctx, df, s.opts.unaryInt)
+    ...
+     // 5. 回写响应数据。
+	if err := s.sendResponse(t, stream, reply, cp, opts, comp); err != nil {
+    ...
+}
+
+func (s *Server) sendResponse(t transport.ServerTransport, stream *transport.Stream, msg interface{}, cp Compressor, opts *transport.Options, comp encoding.Compressor) error {
+    ...
+    err = t.Write(stream, hdr, payload, opts)
+    ...
+}
+
+```
+
+## 重造 gprc server 
+

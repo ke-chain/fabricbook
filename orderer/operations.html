@@ -1,0 +1,401 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>获取 Operations : 操作服务 &mdash; pname 2.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="重造轮子：Orderer" href="../orderer.html"/>
+        <link rel="next" title="Fabric如何提高性能" href="../performancelibs.html"/>
+        <link rel="prev" title="获取 MSP :Membership Service Provider" href="msp.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+
+          
+            <a href="../index.html" class="icon icon-home"> pname
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+
+<br><img style="background-color: #fff; height: unset; width: unset;" alt="Hyperledger Fabric" src=../_images/hyperledger_fabric_logo_color.png />
+<br>
+<a href="https://github.com/hyperledger/fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="GitHub" src="../_static/images/github_button.png"/></a>
+&nbsp;<a href="https://stackoverflow.com/questions/tagged/hyperledger-fabric"><img style="padding: 0px; margin: auto auto auto auto;" alt="StackOverflow" src="../_static/images/stackoverflow_button.png"/></a>
+&nbsp;<a href="https://chat.hyperledger.org"><img style="padding: 0px; margin: auto auto auto auto;" alt="Rocket Chat" src="../_static/images/rocketchat_button.png"/></a>
+&nbsp;<a href="https://www.youtube.com/playlist?list=PL0MZ85B_96CH7wvtrRzV7SvtRY0sI0DEg"><img style="padding: 0px; margin: auto auto auto auto;" alt="Youtube Channel" src="../_static/images/youtube_button.png"/></a>
+
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../orderer.html#id1"><cite>Orderer</cite> 排序节点是什么？</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../orderer.html#id2">这个章节要做些什么？</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="loadconfig.html">加载orderer.yaml文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="initlogger.html">初始化日志</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bccsp.html">获取 BCCSP :blockchain cryptographic service provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="msp.html">获取 MSP :Membership Service Provider</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">获取 Operations  : 操作服务</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fabric-orderer-operations">Fabric Orderer 中 Operations 用途是什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#operations">Operations 底层调用了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#operations">重造 Operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#">本文源码地址</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pname</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../orderer.html">重造轮子：<cite>Orderer</cite></a> &raquo;</li>
+        
+      <li>获取 Operations  : 操作服务</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/orderer/operations.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="operations">
+<span id="operations"></span><h1>获取 Operations  : 操作服务<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fabric-orderer-operations">
+<span id="fabric-orderer-operations"></span><h2>Fabric Orderer 中 Operations 用途是什么？<a class="headerlink" href="#fabric-orderer-operations" title="Permalink to this headline">¶</a></h2>
+<p>Peer 和 orderer 管理一个 HTTP 服务器，该服务器提供 RESTful “操作” API。此API与Fabric网络服务无关，旨在供操作人员使用，而非网络管理员或“用户”。</p>
+<p>该 API 提供了以下功能：</p>
+<ul class="simple">
+<li>日志级别管理</li>
+<li>健康检查</li>
+<li>（当API被配置时）操作指标数据的Prometheus目标</li>
+</ul>
+<p>在默认 orderer.yaml 文件中的 Operations 配置了对应的地址和 TSL ，Metrics 配置了指标数据( 默认没有开启 )</p>
+</div>
+<div class="section" id="operations">
+<span id="id1"></span><h2>Operations 底层调用了什么？<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h2>
+<p>Operations 实际上是一个提供 RESTful “操作” API 的服务器。
+显示初始化花了一个服务器，然后添加路径： logspec 、healthz、 version、  metrics 进行对应操作。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// 新建 Operations 服务</span>
+<span class="kd">func</span> <span class="nx">newOperationsSystem</span><span class="p">(</span><span class="nx">ops</span> <span class="nx">localconfig</span><span class="p">.</span><span class="nx">Operations</span><span class="p">,</span> <span class="nx">metrics</span> <span class="nx">localconfig</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">)</span> <span class="o">*</span><span class="nx">operations</span><span class="p">.</span><span class="nx">System</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">NewSystem</span><span class="p">(</span><span class="nx">operations</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
+        <span class="nx">Logger</span><span class="p">:</span>        <span class="nx">flogging</span><span class="p">.</span><span class="nx">MustGetLogger</span><span class="p">(</span><span class="s">&quot;orderer.operations&quot;</span><span class="p">),</span>
+        <span class="nx">ListenAddress</span><span class="p">:</span> <span class="nx">ops</span><span class="p">.</span><span class="nx">ListenAddress</span><span class="p">,</span>
+        <span class="nx">Metrics</span><span class="p">:</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">MetricsOptions</span><span class="p">{</span>
+            <span class="nx">Provider</span><span class="p">:</span> <span class="nx">metrics</span><span class="p">.</span><span class="nx">Provider</span><span class="p">,</span>
+            <span class="nx">Statsd</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">operations</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">{</span>
+                <span class="nx">Network</span><span class="p">:</span>       <span class="nx">metrics</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">.</span><span class="nx">Network</span><span class="p">,</span>
+                <span class="nx">Address</span><span class="p">:</span>       <span class="nx">metrics</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">.</span><span class="nx">Address</span><span class="p">,</span>
+                <span class="nx">WriteInterval</span><span class="p">:</span> <span class="nx">metrics</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">.</span><span class="nx">WriteInterval</span><span class="p">,</span>
+                <span class="nx">Prefix</span><span class="p">:</span>        <span class="nx">metrics</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">.</span><span class="nx">Prefix</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="nx">TLS</span><span class="p">:</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">TLS</span><span class="p">{</span>
+            <span class="nx">Enabled</span><span class="p">:</span>            <span class="nx">ops</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">Enabled</span><span class="p">,</span>
+            <span class="nx">CertFile</span><span class="p">:</span>           <span class="nx">ops</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">,</span>
+            <span class="nx">KeyFile</span><span class="p">:</span>            <span class="nx">ops</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">,</span>
+            <span class="nx">ClientCertRequired</span><span class="p">:</span> <span class="nx">ops</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">ClientAuthRequired</span><span class="p">,</span>
+            <span class="nx">ClientCACertFiles</span><span class="p">:</span>  <span class="nx">ops</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">ClientRootCAs</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="nx">Version</span><span class="p">:</span> <span class="nx">metadata</span><span class="p">.</span><span class="nx">Version</span><span class="p">,</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="c1">// 初始化服务器，添加日志级别管理 、健康检查 、操作指标数据 、版本信息 操作</span>
+<span class="kd">func</span> <span class="nx">NewSystem</span><span class="p">(</span><span class="nx">o</span> <span class="nx">Options</span><span class="p">)</span> <span class="o">*</span><span class="nx">System</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">system</span><span class="p">.</span><span class="nx">initializeServer</span><span class="p">()</span>
+    <span class="nx">system</span><span class="p">.</span><span class="nx">initializeHealthCheckHandler</span><span class="p">()</span>
+    <span class="nx">system</span><span class="p">.</span><span class="nx">initializeLoggingHandler</span><span class="p">()</span>
+    <span class="nx">system</span><span class="p">.</span><span class="nx">initializeMetricsProvider</span><span class="p">()</span>
+    <span class="nx">system</span><span class="p">.</span><span class="nx">initializeVersionInfoHandler</span><span class="p">()</span>
+    <span class="o">...</span> 
+<span class="p">}</span>
+
+<span class="c1">// 初始化服务器</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">System</span><span class="p">)</span> <span class="nx">initializeServer</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">mux</span> <span class="p">=</span> <span class="nx">http</span><span class="p">.</span><span class="nx">NewServeMux</span><span class="p">()</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">httpServer</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span><span class="p">{</span>
+        <span class="nx">Addr</span><span class="p">:</span>         <span class="nx">s</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">ListenAddress</span><span class="p">,</span>
+        <span class="nx">Handler</span><span class="p">:</span>      <span class="nx">s</span><span class="p">.</span><span class="nx">mux</span><span class="p">,</span>
+        <span class="nx">ReadTimeout</span><span class="p">:</span>  <span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">,</span>
+        <span class="nx">WriteTimeout</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 日志级别管理服务</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">System</span><span class="p">)</span> <span class="nx">initializeLoggingHandler</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">mux</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&quot;/logspec&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handlerChain</span><span class="p">(</span><span class="nx">httpadmin</span><span class="p">.</span><span class="nx">NewSpecHandler</span><span class="p">(),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">Enabled</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1">// 健康检查服务</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">System</span><span class="p">)</span> <span class="nx">initializeHealthCheckHandler</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">healthHandler</span> <span class="p">=</span> <span class="nx">healthz</span><span class="p">.</span><span class="nx">NewHealthHandler</span><span class="p">()</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">mux</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&quot;/healthz&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handlerChain</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">healthHandler</span><span class="p">,</span> <span class="kc">false</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1">// 版本信息服务</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">System</span><span class="p">)</span> <span class="nx">initializeVersionInfoHandler</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">versionInfo</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">VersionInfoHandler</span><span class="p">{</span>
+        <span class="nx">CommitSHA</span><span class="p">:</span> <span class="nx">metadata</span><span class="p">.</span><span class="nx">CommitSHA</span><span class="p">,</span>
+        <span class="nx">Version</span><span class="p">:</span>   <span class="nx">metadata</span><span class="p">.</span><span class="nx">Version</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">mux</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&quot;/version&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handlerChain</span><span class="p">(</span><span class="nx">versionInfo</span><span class="p">,</span> <span class="kc">false</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1">// 根据配置设置 操作指标数据</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">System</span><span class="p">)</span> <span class="nx">initializeMetricsProvider</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="nx">m</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">Metrics</span>
+    <span class="nx">providerType</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Provider</span>
+    <span class="k">switch</span> <span class="nx">providerType</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="s">&quot;statsd&quot;</span><span class="p">:</span>
+        <span class="nx">prefix</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">.</span><span class="nx">Prefix</span>
+        <span class="k">if</span> <span class="nx">prefix</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="p">!</span><span class="nx">strings</span><span class="p">.</span><span class="nx">HasSuffix</span><span class="p">(</span><span class="nx">prefix</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">prefix</span> <span class="p">=</span> <span class="nx">prefix</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span>
+        <span class="p">}</span>
+
+        <span class="nx">ks</span> <span class="o">:=</span> <span class="nx">kitstatsd</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">prefix</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">Provider</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">statsd</span><span class="p">.</span><span class="nx">Provider</span><span class="p">{</span><span class="nx">Statsd</span><span class="p">:</span> <span class="nx">ks</span><span class="p">}</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">statsd</span> <span class="p">=</span> <span class="nx">ks</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">versionGauge</span> <span class="p">=</span> <span class="nx">versionGauge</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">Provider</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+
+    <span class="k">case</span> <span class="s">&quot;prometheus&quot;</span><span class="p">:</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">Provider</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">prometheus</span><span class="p">.</span><span class="nx">Provider</span><span class="p">{}</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">versionGauge</span> <span class="p">=</span> <span class="nx">versionGauge</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">Provider</span><span class="p">)</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">mux</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&quot;/metrics&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handlerChain</span><span class="p">(</span><span class="nx">promhttp</span><span class="p">.</span><span class="nx">Handler</span><span class="p">(),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">TLS</span><span class="p">.</span><span class="nx">Enabled</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+
+    <span class="k">default</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nx">providerType</span> <span class="o">!=</span> <span class="s">&quot;disabled&quot;</span> <span class="p">{</span>
+            <span class="nx">s</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">Warnf</span><span class="p">(</span><span class="s">&quot;Unknown provider type: %s; metrics disabled&quot;</span><span class="p">,</span> <span class="nx">providerType</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="nx">s</span><span class="p">.</span><span class="nx">Provider</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">disabled</span><span class="p">.</span><span class="nx">Provider</span><span class="p">{}</span>
+        <span class="nx">s</span><span class="p">.</span><span class="nx">versionGauge</span> <span class="p">=</span> <span class="nx">versionGauge</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">Provider</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="operations">
+<span id="id2"></span><h2>重造 Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h2>
+<p>将Hyperledger Fabric的 Operations 代码加入工程。</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>$ make orderer
+$ docker run -v <span class="nv">$PWD</span>/build/bin:/usr/local/bin  -it --rm hyperledger/fabric-orderer:2.2 /bin/sh
+$ orderer
+...
+打印默认 Operations 信息
+</pre></div>
+</div>
+</div>
+<div class="section" id="">
+<span id="id3"></span><h2>本文源码地址<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h2>
+<p>https://github.com/ke-chain/fabric/tree/v0.4</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../performancelibs.html" class="btn btn-neutral float-right" title="Fabric如何提高性能" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="msp.html" class="btn btn-neutral" title="获取 MSP :Membership Service Provider" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+    <br>
+      <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <img alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.2',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

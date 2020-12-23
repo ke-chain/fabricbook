@@ -1,0 +1,60 @@
+peer lifecycle chaincode 创建链码
+========
+
+
+## peer lifecycle chaincode 的用途？
+>官网原文：The peer lifecycle chaincode subcommand allows administrators to use the Fabric chaincode lifecycle to package a chaincode, install it on your peers, approve a chaincode definition for your organization, and then commit the definition to a channel. The chaincode is ready to be used after the definition has been successfully committed to the channel. 
+
+`peer lifecycle chaincode`子命令允许管理员使用 `Fabric` 链码生命周期打包链码，安装链码到节点，使组织同意链码定义，之后提交链码定义到通道。链码在定义被提交到通道后就已经可以使用了。
+
+## 在network.sh的使用场景是什么？
+`network.sh` 使用`peer lifecycle chaincode` 进行从打包到提交的过程。
+```sh
+#打包链码
+peer lifecycle chaincode package fabcar.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label fabcar_${VERSION} 
+
+# 安装链码
+peer lifecycle chaincode install fabcar.tar.gz 
+
+# 查询已安装链码
+peer lifecycle chaincode queryinstalled
+
+# 同意链码定义
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabcar --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} 
+
+# 提交链码定义
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required 
+```
+
+## peer lifecycle chaincode 命令的效果是什么？
+在上述流程完成后，使用 `peer chaincode invoke` 可以调用该链码。
+
+
+## peer lifecycle chaincode 命令参数什么含义？
+
+- `peer lifecycle chaincode package`
+    - `fabcar.tar.gz`: 输出文件的名称
+    - `--path ` :链码地址
+    - `--lang`:链码使用的语言(默认go)
+    - `--label`:链码标签，人类看得懂的包信息
+
+- `peer lifecycle chaincode install`
+    - `fabcar.tar.gz`: 需要安装的链码包
+
+- `peer lifecycle chaincode queryinstalled` ：查找已安装的链码
+   返回信息如下：
+    ```
+    Installed chaincodes on peer:
+    Package ID: fabcar_1:762e0fe3dbeee0f7b08fb6200adeb4a3a20f649a00f168c0b3c2257e53b6e506, Label: fabcar_1
+    ```
+- `approveformyorg`和`commit`
+    - `-o` :orderer节点的url
+    - `--ordererTLSHostnameOverride`:建立tls连接时优先使用的hostname
+    - `--tls` ：开启tls
+    - `--cafile`：orderer终端PEM编码的可信任证书的地址
+    - `--channelID`：通道id
+    - `--name` ：链码名字
+    - `--version`：链码版本
+    - `--init-required `：链码是否需要调用 `init`
+    - `--package-id`:链码包的id
+    - `--sequence` ：通道中链码定义的顺序

@@ -1,0 +1,41 @@
+
+peer channel join 加入通道
+=========
+
+
+## peer channel join 的用途？
+将peer节点加入指定通道。
+
+## 在network.sh的使用场景是什么？
+`network.sh` 使用 `peer channel join`将 `org1` 和 `org2` 的节点加入 `mychannel`
+```sh
+#org1,org2的节点加入通道
+setGlobals 1
+peer channel join -b ./channel-artifacts/mychannel.block
+setGlobals 2
+peer channel join -b ./channel-artifacts/mychannel.block
+```
+
+## peer channel join 命令的效果是什么？
+终端显示加入成功的信息
+```
+2020-12-01 14:08:09.525 CST [channelCmd] InitCmdFactory -> INFO 001 Endorser and orderer connections initialized
+2020-12-01 14:08:09.553 CST [channelCmd] executeJoin -> INFO 002 Successfully submitted proposal to join channel
+```
+
+## peer channel join 命令参数和环境变量的含义是什么？
+
+`-b ./channel-artifacts/mychannel.block`:指定创世块的目录地址
+
+`peer channel join`命令使用环境变量来决定使用的peer。
+以org1的节点peer0为例子：
+```sh
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+```
+`CORE_PEER_LOCALMSPID`：组织的msp id。
+`CORE_PEER_TLS_ROOTCERT_FILE`：CA 证书链文件的标准路径
+`CORE_PEER_MSPCONFIGPATH`：组织MSP的决定路径
+`CORE_PEER_ADDRESS`：peer节点的url
