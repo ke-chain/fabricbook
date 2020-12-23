@@ -109,6 +109,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#">今天做什么？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">做完的效果是什么？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">代码都做了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#localconfig-load">localconfig.Load() 应该如何使用？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">本文源码地址</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">今天学到了什么？</a></li>
 </ul>
@@ -284,6 +285,36 @@ orderer/common/localconfig/config.go</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="localconfig-load">
+<span id="localconfig-load"></span><h2>localconfig.Load() 应该如何使用？<a class="headerlink" href="#localconfig-load" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。</div></blockquote>
+<p>localconfig.Load() 一般直接调用函数即可，
+关键参数 Tolevel.General.LocalMSPDir 可以修改 MSP 目录。</p>
+<p>测试函数如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">TestLoadCached</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">cleanup</span> <span class="o">:=</span> <span class="nx">configtest</span><span class="p">.</span><span class="nx">SetDevFabricConfigPath</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+    <span class="k">defer</span> <span class="nx">cleanup</span><span class="p">()</span>
+
+    <span class="c1">// Load the initial config, update the environment, and load again.</span>
+    <span class="c1">// With the caching behavior, the update should not be reflected</span>
+    <span class="nx">initial</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">Load</span><span class="p">()</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="nx">os</span><span class="p">.</span><span class="nx">Setenv</span><span class="p">(</span><span class="s">&quot;ORDERER_KAFKA_RETRY_SHORTINTERVAL&quot;</span><span class="p">,</span> <span class="s">&quot;120s&quot;</span><span class="p">)</span>
+    <span class="nx">updated</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">Load</span><span class="p">()</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">initial</span><span class="p">,</span> <span class="nx">updated</span><span class="p">,</span> <span class="s">&quot;expected %#v to equal %#v&quot;</span><span class="p">,</span> <span class="nx">updated</span><span class="p">,</span> <span class="nx">initial</span><span class="p">)</span>
+
+    <span class="c1">// Change the configuration we got back and load again.</span>
+    <span class="c1">// The new value should not contain the update to the initial</span>
+    <span class="nx">initial</span><span class="p">.</span><span class="nx">General</span><span class="p">.</span><span class="nx">LocalMSPDir</span> <span class="p">=</span> <span class="s">&quot;/test/bad/mspDir&quot;</span>
+    <span class="nx">updated</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">Load</span><span class="p">()</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">NotEqual</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">initial</span><span class="p">,</span> <span class="nx">updated</span><span class="p">,</span> <span class="s">&quot;expected %#v to not equal %#v&quot;</span><span class="p">,</span> <span class="nx">updated</span><span class="p">,</span> <span class="nx">initial</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="">

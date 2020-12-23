@@ -109,6 +109,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">初始化日志</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#fabric">Fabric 是怎么记录日志的？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">记录日志的底层调用了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flogging-init">flogging.Init 应该如何使用？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">重造日志</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">本文源码地址</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">今天学到了什么？</a></li>
@@ -289,6 +290,79 @@
     <span class="o">...</span><span class="p">.</span>
     <span class="nx">n</span><span class="p">,</span> <span class="nx">e</span> <span class="o">:=</span> <span class="nx">f</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
     <span class="o">...</span><span class="p">.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="flogging-init">
+<span id="flogging-init"></span><h2>flogging.Init 应该如何使用？<a class="headerlink" href="#flogging-init" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。
+flogging.Init 测试方法有5个：</div></blockquote>
+<ol class="simple">
+<li>自定义格式输出</li>
+<li>json 格式输出</li>
+<li>logfmt 日志格式输出</li>
+<li>全局错误格式导致 panic</li>
+<li>错误格式导致 panic</li>
+</ol>
+<p>测试函数如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">TestGlobalInitConsole</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">flogging</span><span class="p">.</span><span class="nx">Init</span><span class="p">(</span><span class="nx">flogging</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+        <span class="nx">Format</span><span class="p">:</span>  <span class="s">&quot;%{message}&quot;</span><span class="p">,</span>
+        <span class="nx">LogSpec</span><span class="p">:</span> <span class="s">&quot;DEBUG&quot;</span><span class="p">,</span>
+        <span class="nx">Writer</span><span class="p">:</span>  <span class="nx">buf</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="o">...</span>
+    <span class="nx">logger</span><span class="p">.</span><span class="nx">Debug</span><span class="p">(</span><span class="s">&quot;this is a message&quot;</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&quot;this is a message\n&quot;</span><span class="p">,</span> <span class="nx">buf</span><span class="p">.</span><span class="nx">String</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TestGlobalInitJSON</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">flogging</span><span class="p">.</span><span class="nx">Reset</span><span class="p">()</span>
+    <span class="o">...</span>
+    <span class="nx">flogging</span><span class="p">.</span><span class="nx">Init</span><span class="p">(</span><span class="nx">flogging</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+        <span class="nx">Format</span><span class="p">:</span>  <span class="s">&quot;json&quot;</span><span class="p">,</span>
+        <span class="nx">LogSpec</span><span class="p">:</span> <span class="s">&quot;DEBUG&quot;</span><span class="p">,</span>
+        <span class="nx">Writer</span><span class="p">:</span>  <span class="nx">buf</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="o">...</span>
+    <span class="nx">logger</span><span class="p">.</span><span class="nx">Debug</span><span class="p">(</span><span class="s">&quot;this is a message&quot;</span><span class="p">)</span>
+
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Regexp</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">`{&quot;level&quot;:&quot;debug&quot;,&quot;ts&quot;:\d+.\d+,&quot;name&quot;:&quot;testlogger&quot;,&quot;caller&quot;:&quot;flogging/global_test.go:\d+&quot;,&quot;msg&quot;:&quot;this is a message&quot;}\s+`</span><span class="p">,</span> <span class="nx">buf</span><span class="p">.</span><span class="nx">String</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TestGlobalInitLogfmt</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">flogging</span><span class="p">.</span><span class="nx">Init</span><span class="p">(</span><span class="nx">flogging</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+        <span class="nx">Format</span><span class="p">:</span>  <span class="s">&quot;logfmt&quot;</span><span class="p">,</span>
+        <span class="nx">LogSpec</span><span class="p">:</span> <span class="s">&quot;DEBUG&quot;</span><span class="p">,</span>
+        <span class="nx">Writer</span><span class="p">:</span>  <span class="nx">buf</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="o">...</span>
+    <span class="nx">logger</span><span class="p">.</span><span class="nx">Debug</span><span class="p">(</span><span class="s">&quot;this is a message&quot;</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Regexp</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">`^ts=\d+.\d+ level=debug name=testlogger caller=flogging/global_test.go:\d+ msg=&quot;this is a message&quot;`</span><span class="p">,</span> <span class="nx">buf</span><span class="p">.</span><span class="nx">String</span><span class="p">())</span>
+<span class="p">}</span>
+
+
+
+<span class="kd">func</span> <span class="nx">TestFlogginInitPanic</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Panics</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">flogging</span><span class="p">.</span><span class="nx">Init</span><span class="p">(</span><span class="nx">flogging</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+            <span class="nx">Format</span><span class="p">:</span> <span class="s">&quot;%{color:broken}&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nx">TestGlobalInitPanic</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Panics</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">flogging</span><span class="p">.</span><span class="nx">Init</span><span class="p">(</span><span class="nx">flogging</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+            <span class="nx">Format</span><span class="p">:</span> <span class="s">&quot;%{color:evil}&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+    <span class="p">})</span>
 <span class="p">}</span>
 </pre></div>
 </div>

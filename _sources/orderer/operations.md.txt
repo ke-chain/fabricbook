@@ -125,6 +125,91 @@ func (s *System) initializeMetricsProvider() error {
 
 ```
 
+## operations.NewSystem() 应该如何使用？
+> Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。
+
+operations.NewSystem 会根据不同的 MetricsOptions 生成 Provider。
+测试主要两个方面：
+1. system 是否为空
+2. Provider 的类型是否正确
+
+测试函数如下：
+
+```go
+
+	Context("when the metrics provider is disabled", func() {
+		BeforeEach(func() {
+			options.Metrics = operations.MetricsOptions{
+				Provider: "disabled",
+			}
+			system = operations.NewSystem(options)
+			Expect(system).NotTo(BeNil())
+		})
+
+		It("sets up a disabled provider", func() {
+			Expect(system.Provider).To(Equal(&disabled.Provider{}))
+		})
+	})
+
+	Context("when the metrics provider is prometheus", func() {
+		BeforeEach(func() {
+			options.Metrics = operations.MetricsOptions{
+				Provider: "prometheus",
+			}
+			system = operations.NewSystem(options)
+			Expect(system).NotTo(BeNil())
+		})
+
+		It("sets up prometheus as a provider", func() {
+			Expect(system.Provider).To(Equal(&prometheus.Provider{}))
+		})
+
+	})
+
+	Context("when the metrics provider is statsd", func() {
+		var listener net.Listener
+
+		BeforeEach(func() {
+			var err error
+			listener, err = net.Listen("tcp", "127.0.0.1:0")
+			Expect(err).NotTo(HaveOccurred())
+
+			options.Metrics = operations.MetricsOptions{
+				Provider: "statsd",
+				Statsd: &operations.Statsd{
+					Network:       "tcp",
+					Address:       listener.Addr().String(),
+					WriteInterval: 100 * time.Millisecond,
+					Prefix:        "prefix",
+				},
+			}
+			system = operations.NewSystem(options)
+			Expect(system).NotTo(BeNil())
+		})
+
+	})
+
+	Context("when the metrics provider is unknown", func() {
+		BeforeEach(func() {
+			options.Metrics.Provider = "something-unknown"
+			system = operations.NewSystem(options)
+		})
+
+		It("sets up a disabled provider", func() {
+			Expect(system.Provider).To(Equal(&disabled.Provider{}))
+		})
+
+		It("logs the issue", func() {
+			Expect(fakeLogger.WarnfCallCount()).To(Equal(1))
+			msg, args := fakeLogger.WarnfArgsForCall(0)
+			Expect(msg).To(Equal("Unknown provider type: %s; metrics disabled"))
+			Expect(args).To(Equal([]interface{}{"something-unknown"}))
+		})
+	})
+})
+
+```
+
 ## 重造 Operations
 
 

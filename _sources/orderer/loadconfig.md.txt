@@ -98,6 +98,37 @@ func (c *configCache) load() (*TopLevel, error) {
 }
 ```
 
+## localconfig.Load() 应该如何使用？
+> Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。
+
+localconfig.Load() 一般直接调用函数即可，
+关键参数 Tolevel.General.LocalMSPDir 可以修改 MSP 目录。
+
+测试函数如下：
+```go
+func TestLoadCached(t *testing.T) {
+	cleanup := configtest.SetDevFabricConfigPath(t)
+	defer cleanup()
+
+	// Load the initial config, update the environment, and load again.
+	// With the caching behavior, the update should not be reflected
+	initial, err := Load()
+	assert.NoError(t, err)
+	os.Setenv("ORDERER_KAFKA_RETRY_SHORTINTERVAL", "120s")
+	updated, err := Load()
+	assert.NoError(t, err)
+	assert.Equal(t, initial, updated, "expected %#v to equal %#v", updated, initial)
+
+	// Change the configuration we got back and load again.
+	// The new value should not contain the update to the initial
+	initial.General.LocalMSPDir = "/test/bad/mspDir"
+	updated, err = Load()
+	assert.NoError(t, err)
+	assert.NotEqual(t, initial, updated, "expected %#v to not equal %#v", updated, initial)
+}
+
+```
+
 ## 本文源码地址
 https://github.com/ke-chain/fabric/tree/v1.0
 

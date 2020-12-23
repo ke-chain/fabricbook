@@ -110,6 +110,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">获取 BCCSP :blockchain cryptographic service provider</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#fabric-bccsp">Fabric 中 BCCSP 用途是什么？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bccsp">BCCSP 底层调用了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#factory-getdefault">factory.GetDefault() 应该如何使用？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bccsp">重造BCCSP</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">本文源码地址</a></li>
 </ul>
@@ -280,6 +281,19 @@ CSP 是 BCCSP 接口的通用实现，进行密钥的生成、派生、导入、
     <span class="nx">csp</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">CSP</span><span class="p">{</span><span class="nx">keyStore</span><span class="p">,</span>
         <span class="nx">keyGenerators</span><span class="p">,</span> <span class="nx">keyDerivers</span><span class="p">,</span> <span class="nx">keyImporters</span><span class="p">,</span> <span class="nx">encryptors</span><span class="p">,</span>
         <span class="nx">decryptors</span><span class="p">,</span> <span class="nx">signers</span><span class="p">,</span> <span class="nx">verifiers</span><span class="p">,</span> <span class="nx">hashers</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="factory-getdefault">
+<span id="factory-getdefault"></span><h2>factory.GetDefault() 应该如何使用？<a class="headerlink" href="#factory-getdefault" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。</div></blockquote>
+<p>factory.GetDefault() 的用法非常简单，只要返回的 bccsp 实例不为空即可。</p>
+<p>测试函数如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">TestGetDefault</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">bccsp</span> <span class="o">:=</span> <span class="nx">GetDefault</span><span class="p">()</span>
+    <span class="nx">require</span><span class="p">.</span><span class="nx">NotNil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">bccsp</span><span class="p">,</span> <span class="s">&quot;Failed getting default BCCSP. Nil instance.&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>

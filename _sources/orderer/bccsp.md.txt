@@ -16,8 +16,6 @@ CSP 最终调用调用的 crypto 包下各种密码算法的实现。
 CSP 是 BCCSP 接口的通用实现，进行密钥的生成、派生、导入、获取、签名、验签、加密、解密等一系列的操作。
 
 ```go
-
-
 // orderer 包main函数，生成第一个BCCSP实例
 func Main() {
     ...
@@ -96,6 +94,19 @@ func New(keyStore bccsp.KeyStore) (*CSP, error) {
 }
 ```
 
+## factory.GetDefault() 应该如何使用？
+> Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。
+
+factory.GetDefault() 的用法非常简单，只要返回的 bccsp 实例不为空即可。
+
+测试函数如下：
+```go
+func TestGetDefault(t *testing.T) {
+	bccsp := GetDefault()
+	require.NotNil(t, bccsp, "Failed getting default BCCSP. Nil instance.")
+}
+
+```
 
 
 ## 重造BCCSP

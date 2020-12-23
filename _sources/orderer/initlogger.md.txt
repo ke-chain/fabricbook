@@ -107,6 +107,80 @@ func (f *File) Write(b []byte) (n int, err error) {
 }
 
 ```
+
+## flogging.Init 应该如何使用？
+> Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。
+flogging.Init 测试方法有5个：
+1. 自定义格式输出
+2. json 格式输出
+3. logfmt 日志格式输出
+4. 全局错误格式导致 panic
+5. 错误格式导致 panic
+
+测试函数如下：
+```go
+
+func TestGlobalInitConsole(t *testing.T) {
+    ...
+	flogging.Init(flogging.Config{
+		Format:  "%{message}",
+		LogSpec: "DEBUG",
+		Writer:  buf,
+	})
+    ...
+	logger.Debug("this is a message")
+	assert.Equal(t, "this is a message\n", buf.String())
+}
+
+func TestGlobalInitJSON(t *testing.T) {
+	flogging.Reset()
+    ...
+	flogging.Init(flogging.Config{
+		Format:  "json",
+		LogSpec: "DEBUG",
+		Writer:  buf,
+	})
+    ...
+    logger.Debug("this is a message")
+
+	assert.Regexp(t, `{"level":"debug","ts":\d+.\d+,"name":"testlogger","caller":"flogging/global_test.go:\d+","msg":"this is a message"}\s+`, buf.String())
+}
+
+func TestGlobalInitLogfmt(t *testing.T) {
+    ...
+	flogging.Init(flogging.Config{
+		Format:  "logfmt",
+		LogSpec: "DEBUG",
+		Writer:  buf,
+	})
+    ...
+    logger.Debug("this is a message")
+	assert.Regexp(t, `^ts=\d+.\d+ level=debug name=testlogger caller=flogging/global_test.go:\d+ msg="this is a message"`, buf.String())
+}
+
+
+
+func TestFlogginInitPanic(t *testing.T) {
+    ...
+	assert.Panics(t, func() {
+		flogging.Init(flogging.Config{
+			Format: "%{color:broken}",
+		})
+	})
+}
+
+func TestGlobalInitPanic(t *testing.T) {
+    ...
+	assert.Panics(t, func() {
+		flogging.Init(flogging.Config{
+			Format: "%{color:evil}",
+		})
+	})
+}
+
+
+```
+
 ## 重造日志
 
 

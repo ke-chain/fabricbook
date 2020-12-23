@@ -112,6 +112,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">获取 Operations  : 操作服务</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#fabric-orderer-operations">Fabric Orderer 中 Operations 用途是什么？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#operations">Operations 底层调用了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#operations-newsystem">operations.NewSystem() 应该如何使用？</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#operations">重造 Operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#">本文源码地址</a></li>
 </ul>
@@ -303,6 +304,90 @@
         <span class="k">return</span> <span class="kc">nil</span>
     <span class="p">}</span>
 <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="operations-newsystem">
+<span id="operations-newsystem"></span><h2>operations.NewSystem() 应该如何使用？<a class="headerlink" href="#operations-newsystem" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。</div></blockquote>
+<p>operations.NewSystem 会根据不同的 MetricsOptions 生成 Provider。
+测试主要两个方面：</p>
+<ol class="simple">
+<li>system 是否为空</li>
+<li>Provider 的类型是否正确</li>
+</ol>
+<p>测试函数如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span>    <span class="nx">Context</span><span class="p">(</span><span class="s">&quot;when the metrics provider is disabled&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">options</span><span class="p">.</span><span class="nx">Metrics</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">MetricsOptions</span><span class="p">{</span>
+                <span class="nx">Provider</span><span class="p">:</span> <span class="s">&quot;disabled&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="nx">system</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">NewSystem</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">system</span><span class="p">).</span><span class="nx">NotTo</span><span class="p">(</span><span class="nx">BeNil</span><span class="p">())</span>
+        <span class="p">})</span>
+
+        <span class="nx">It</span><span class="p">(</span><span class="s">&quot;sets up a disabled provider&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">system</span><span class="p">.</span><span class="nx">Provider</span><span class="p">).</span><span class="nx">To</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">disabled</span><span class="p">.</span><span class="nx">Provider</span><span class="p">{}))</span>
+        <span class="p">})</span>
+    <span class="p">})</span>
+
+    <span class="nx">Context</span><span class="p">(</span><span class="s">&quot;when the metrics provider is prometheus&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">options</span><span class="p">.</span><span class="nx">Metrics</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">MetricsOptions</span><span class="p">{</span>
+                <span class="nx">Provider</span><span class="p">:</span> <span class="s">&quot;prometheus&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="nx">system</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">NewSystem</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">system</span><span class="p">).</span><span class="nx">NotTo</span><span class="p">(</span><span class="nx">BeNil</span><span class="p">())</span>
+        <span class="p">})</span>
+
+        <span class="nx">It</span><span class="p">(</span><span class="s">&quot;sets up prometheus as a provider&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">system</span><span class="p">.</span><span class="nx">Provider</span><span class="p">).</span><span class="nx">To</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">prometheus</span><span class="p">.</span><span class="nx">Provider</span><span class="p">{}))</span>
+        <span class="p">})</span>
+
+    <span class="p">})</span>
+
+    <span class="nx">Context</span><span class="p">(</span><span class="s">&quot;when the metrics provider is statsd&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">listener</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span>
+
+        <span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">err</span> <span class="kt">error</span>
+            <span class="nx">listener</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Listen</span><span class="p">(</span><span class="s">&quot;tcp&quot;</span><span class="p">,</span> <span class="s">&quot;127.0.0.1:0&quot;</span><span class="p">)</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">err</span><span class="p">).</span><span class="nx">NotTo</span><span class="p">(</span><span class="nx">HaveOccurred</span><span class="p">())</span>
+
+            <span class="nx">options</span><span class="p">.</span><span class="nx">Metrics</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">MetricsOptions</span><span class="p">{</span>
+                <span class="nx">Provider</span><span class="p">:</span> <span class="s">&quot;statsd&quot;</span><span class="p">,</span>
+                <span class="nx">Statsd</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">operations</span><span class="p">.</span><span class="nx">Statsd</span><span class="p">{</span>
+                    <span class="nx">Network</span><span class="p">:</span>       <span class="s">&quot;tcp&quot;</span><span class="p">,</span>
+                    <span class="nx">Address</span><span class="p">:</span>       <span class="nx">listener</span><span class="p">.</span><span class="nx">Addr</span><span class="p">().</span><span class="nx">String</span><span class="p">(),</span>
+                    <span class="nx">WriteInterval</span><span class="p">:</span> <span class="mi">100</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">,</span>
+                    <span class="nx">Prefix</span><span class="p">:</span>        <span class="s">&quot;prefix&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="nx">system</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">NewSystem</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">system</span><span class="p">).</span><span class="nx">NotTo</span><span class="p">(</span><span class="nx">BeNil</span><span class="p">())</span>
+        <span class="p">})</span>
+
+    <span class="p">})</span>
+
+    <span class="nx">Context</span><span class="p">(</span><span class="s">&quot;when the metrics provider is unknown&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">options</span><span class="p">.</span><span class="nx">Metrics</span><span class="p">.</span><span class="nx">Provider</span> <span class="p">=</span> <span class="s">&quot;something-unknown&quot;</span>
+            <span class="nx">system</span> <span class="p">=</span> <span class="nx">operations</span><span class="p">.</span><span class="nx">NewSystem</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+        <span class="p">})</span>
+
+        <span class="nx">It</span><span class="p">(</span><span class="s">&quot;sets up a disabled provider&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">system</span><span class="p">.</span><span class="nx">Provider</span><span class="p">).</span><span class="nx">To</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">disabled</span><span class="p">.</span><span class="nx">Provider</span><span class="p">{}))</span>
+        <span class="p">})</span>
+
+        <span class="nx">It</span><span class="p">(</span><span class="s">&quot;logs the issue&quot;</span><span class="p">,</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">fakeLogger</span><span class="p">.</span><span class="nx">WarnfCallCount</span><span class="p">()).</span><span class="nx">To</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="nx">msg</span><span class="p">,</span> <span class="nx">args</span> <span class="o">:=</span> <span class="nx">fakeLogger</span><span class="p">.</span><span class="nx">WarnfArgsForCall</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">msg</span><span class="p">).</span><span class="nx">To</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="s">&quot;Unknown provider type: %s; metrics disabled&quot;</span><span class="p">))</span>
+            <span class="nx">Expect</span><span class="p">(</span><span class="nx">args</span><span class="p">).</span><span class="nx">To</span><span class="p">(</span><span class="nx">Equal</span><span class="p">([]</span><span class="kd">interface</span><span class="p">{}{</span><span class="s">&quot;something-unknown&quot;</span><span class="p">}))</span>
+        <span class="p">})</span>
+    <span class="p">})</span>
+<span class="p">})</span>
 </pre></div>
 </div>
 </div>

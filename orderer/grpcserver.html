@@ -414,8 +414,100 @@ service 中主要包含了 MethodDesc 和 StreamDesc 这两个 map 分别存储�
 </div>
 </div>
 </div>
-<div class="section" id="gprc-server">
-<span id="gprc-server"></span><h2>重造 gprc server<a class="headerlink" href="#gprc-server" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="comm-newgrpcserverfromlistener">
+<span id="comm-newgrpcserverfromlistener"></span><h2>comm.NewGRPCServerFromListener() 应该如何使用？<a class="headerlink" href="#comm-newgrpcserverfromlistener" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Fabric 采用 BDD (行为驱动开发)和 TDD (测试驱动开发)的方式，故测试会描述完整的使用方法。</div></blockquote>
+<p>comm.NewGRPCServerFromListener 对传入的 SecOpts 有严格的要求。</p>
+<p>测试主要6个方面：</p>
+<ol class="simple">
+<li>宿主名错误</li>
+<li>地址被占用</li>
+<li>服务器证书缺失</li>
+<li>服务器秘钥缺失</li>
+<li>服务器秘钥错误</li>
+<li>服务器证书错误</li>
+</ol>
+<p>测试函数如下：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span> <span class="nx">TestNewGRPCServerInvalidParameters</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="c1">// bad hostname</span>
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">,</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span><span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span><span class="nx">UseTLS</span><span class="p">:</span> <span class="kc">false</span><span class="p">}},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="s">&quot;failed to create grpc server&quot;</span><span class="p">)</span>
+
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServer</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">.</span><span class="nx">Addr</span><span class="p">().</span><span class="nx">String</span><span class="p">(),</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span><span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span><span class="nx">UseTLS</span><span class="p">:</span> <span class="kc">false</span><span class="p">}},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">Contains</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">(),</span> <span class="s">&quot;address already in use&quot;</span><span class="p">)</span>
+
+    <span class="c1">// missing server Certificate</span>
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">,</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span>
+            <span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span><span class="nx">UseTLS</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">Key</span><span class="p">:</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">{}},</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">EqualError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="s">&quot;serverConfig.SecOpts must contain both Key and Certificate when UseTLS is true&quot;</span><span class="p">)</span>
+
+    <span class="c1">// missing server Key</span>
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">,</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span>
+            <span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span>
+                <span class="nx">UseTLS</span><span class="p">:</span>      <span class="kc">true</span><span class="p">,</span>
+                <span class="nx">Certificate</span><span class="p">:</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">{}},</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">EqualError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="s">&quot;serverConfig.SecOpts must contain both Key and Certificate when UseTLS is true&quot;</span><span class="p">)</span>
+
+    <span class="c1">// bad server Key</span>
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">,</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span>
+            <span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span>
+                <span class="nx">UseTLS</span><span class="p">:</span>      <span class="kc">true</span><span class="p">,</span>
+                <span class="nx">Certificate</span><span class="p">:</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">selfSignedCertPEM</span><span class="p">),</span>
+                <span class="nx">Key</span><span class="p">:</span>         <span class="p">[]</span><span class="kt">byte</span><span class="p">{},</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">EqualError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="s">&quot;tls: failed to find any PEM data in key input&quot;</span><span class="p">)</span>
+
+    <span class="c1">// bad server Certificate</span>
+    <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">,</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span>
+            <span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span>
+                <span class="nx">UseTLS</span><span class="p">:</span>      <span class="kc">true</span><span class="p">,</span>
+                <span class="nx">Certificate</span><span class="p">:</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">{},</span>
+                <span class="nx">Key</span><span class="p">:</span>         <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">selfSignedKeyPEM</span><span class="p">)},</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">EqualError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="s">&quot;tls: failed to find any PEM data in certificate input&quot;</span><span class="p">)</span>
+
+    <span class="nx">srv</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">NewGRPCServerFromListener</span><span class="p">(</span>
+        <span class="nx">lis</span><span class="p">,</span>
+        <span class="nx">comm</span><span class="p">.</span><span class="nx">ServerConfig</span><span class="p">{</span>
+            <span class="nx">SecOpts</span><span class="p">:</span> <span class="nx">comm</span><span class="p">.</span><span class="nx">SecureOptions</span><span class="p">{</span>
+                <span class="nx">UseTLS</span><span class="p">:</span>            <span class="kc">true</span><span class="p">,</span>
+                <span class="nx">Certificate</span><span class="p">:</span>       <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">selfSignedCertPEM</span><span class="p">),</span>
+                <span class="nx">Key</span><span class="p">:</span>               <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">selfSignedKeyPEM</span><span class="p">),</span>
+                <span class="nx">RequireClientCert</span><span class="p">:</span> <span class="kc">true</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">NoError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+
+    <span class="nx">badRootCAs</span> <span class="o">:=</span> <span class="p">[][]</span><span class="kt">byte</span><span class="p">{[]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">badPEM</span><span class="p">)}</span>
+    <span class="nx">err</span> <span class="p">=</span> <span class="nx">srv</span><span class="p">.</span><span class="nx">SetClientRootCAs</span><span class="p">(</span><span class="nx">badRootCAs</span><span class="p">)</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">EqualError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="s">&quot;failed to set client root certificate(s): asn1: syntax error: data truncated&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 </div>
 

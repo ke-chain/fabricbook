@@ -28,3 +28,4 @@
    orderer/bccsp
    orderer/msp
    orderer/operations
+   orderer/grpcserver
