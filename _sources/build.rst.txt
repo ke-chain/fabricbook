@@ -1,15 +1,10 @@
 编译Fabric
 ============
 
-这个章节要做些什么？
-------------------------------------------
-- 解析 Fabric 源码编译过程
-- 解析 镜像生成过程
-
-
 .. toctree::
    :maxdepth: 1
    :caption: 编译Fabric详解
 
+   buildfabric/whats
    buildfabric/makefie
    buildfabric/dockfile

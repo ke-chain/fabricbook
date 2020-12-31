@@ -37,7 +37,10 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="pname 2.2 documentation" href="../index.html"/> 
+    <link rel="top" title="pname 2.2 documentation" href="../index.html"/>
+        <link rel="up" title="重造轮子：Orderer" href="../orderer.html"/>
+        <link rel="next" title="Fabric如何提高性能" href="../performancelibs.html"/>
+        <link rel="prev" title="获取 Operations : 操作服务" href="operations.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -95,12 +98,32 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../whatis.html">Introduction 介绍</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../network.html">官网教程详解：使用Fabric的测试网络</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../build.html">编译Fabric</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../orderer.html">重造轮子：<cite>Orderer</cite></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="whats.html"><code class="docutils literal notranslate"><span class="pre">Orderer</span></code> 排序节点是什么？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loadconfig.html">加载orderer.yaml文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initlogger.html">初始化日志</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bccsp.html">获取 BCCSP :blockchain cryptographic service provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="msp.html">获取 MSP :Membership Service Provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operations.html">获取 Operations  : 操作服务</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">获取 grpcServer  : 远程通信</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fabric-orderer-grpcserver">Fabric Orderer 中 grpcServer 用途是什么？</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grpcserver">grpcServer 底层调用了什么？</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#server">创建 server 到底创建了什么</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#server">server 的注册到底做了什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#serve">调用 Serve 监听端口并处理请求是如何完成的？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#comm-newgrpcserverfromlistener">comm.NewGRPCServerFromListener() 应该如何使用？</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../performancelibs.html">Fabric如何提高性能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles.html">从优秀文章的角度看 Fabric</a></li>
 </ul>
 
             
@@ -144,6 +167,8 @@
   <ul class="wy-breadcrumbs">
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../orderer.html">重造轮子：<cite>Orderer</cite></a> &raquo;</li>
         
       <li>获取 grpcServer  : 远程通信</li>
     
@@ -518,6 +543,15 @@ service 中主要包含了 MethodDesc 和 StreamDesc 这两个 map 分别存储�
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../performancelibs.html" class="btn btn-neutral float-right" title="Fabric如何提高性能" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="operations.html" class="btn btn-neutral" title="获取 Operations : 操作服务" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

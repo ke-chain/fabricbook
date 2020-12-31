@@ -1,7 +1,7 @@
 # Introduction 介绍
 
 学习 `HyperLedger Fabric 2.2` 的笔记。
-## 参考资料：
+**参考资料：**
 
 -  [Farbic v2.2官网文档](https://hyperledger-fabric.readthedocs.io/zh_CN/release-2.2/index.html)
 - 《 第一本Docker书（修订版） 》
